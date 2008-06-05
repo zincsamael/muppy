@@ -38,7 +38,9 @@ class MuppyTest(unittest.TestCase):
 
     def test_filter_by_size(self):
         """Check that only elements within the specified size boundaries 
-        are returned."""
+        are returned. 
+        Also verify that if minimum is larger than maximum an exception is 
+        raised."""
         minimum = 42
         maximum = 958
         objects = []
@@ -49,25 +51,38 @@ class MuppyTest(unittest.TestCase):
         for o in objects:
             self.assert_(minimum <= sys.getsizeof(o) <= maximum)
 
+        self.assertRaises(ValueError, muppy.filter, objects, min=17, max=16)
+
     def test_get_referents(self):
         """Check that referents are included in return value.
 
         Per default, only first level referents should be returned.
         If specified otherwise referents from even more levels are included
-        in the result set."""
+        in the result set.
+
+        Duplicates have to be removed."""
         (o1, o2, o3, o4, o5) = (1, 'a', 'b', 4, 5)
-        l1 = [10, 11, 12, 13]
+        l0 = [o1, o2]
+        l1 = [10, 11, 12, 13, l0]
         l2 = [o1, o2, o3, o4, o5, l1]
 
+        #return all objects from first level
         res = muppy.get_referents(l2, level=1)
         self.assertEqual(len(l2), len(res))
         for o in res:
             self.assert_(o in l2)
 
+        # return all objects from first and second level
         res = muppy.get_referents(l2, level=2)
         self.assertEqual(len(l1) + len(l2), len(res))
         for o in res:
             self.assert_((o in l1) or (o in l2))
+
+        # return all objects from all levels, but with duplicates removed
+        res = muppy.get_referents(l2, level=4242)
+        self.assertEqual(len(l1) + len(l2), len(res))
+        for o in res:
+            self.assert_((o in l0) or (o in l1) or (o in l2))
         
     def test_getsize(self):
         """Check that the return value is the sum of the size of all objects."""
@@ -87,7 +102,7 @@ class MuppyTest(unittest.TestCase):
         (o1, o2, o3, o4, o5) = (1, 'a', 'b', 4, 5)
         objects = [o1, o2, o3, o4, o5, o5, o4, o3, o2, o1]
         expected = set(objects)
-        res = muppy._remove_duplicates(objects)
+        res = muppy.remove_duplicates(objects)
         self.assertEqual(len(expected), len(res))
         for o in res:
             self.assert_(o in expected)

@@ -4,7 +4,7 @@ import sys
 
 
 def get_objects():
-    """Return a list of all known objects. """
+    """Return a list of all known (gc-vice) objects. """
     return gc.get_objects()
 
 def get_size(objects):
@@ -24,6 +24,7 @@ def filter(objects, Type=object, min=-1, max=-1):
     res = []
     if min > max:
         raise ValueError("minimum must be smaller than maximum")
+    
     [res.append(o) for o in objects if type(o) == Type]
     if min > -1:
         [res.remove(o) for o in res if sys.getsizeof(o) < min]
@@ -33,17 +34,24 @@ def filter(objects, Type=object, min=-1, max=-1):
 
 def get_referents(object, level=1):
     """Get all referents of an object up to a certain level.
-    
+
+    The referents will not be returned in a specific order and
+    will not contain duplicate objects.
+
+    Keyword arguments:
+    level -- level of indirection to which referents considered.
+
     This function is recursive."""
     res = gc.get_referents(object)
     level -= 1
     if level > 0:
         for o in res:
             res.extend(get_referents(o, level))
-    res = _remove_duplicates(res)
+    res = remove_duplicates(res)
     return res
 
-def _remove_duplicates(objects):
+def remove_duplicates(objects):
+    """Remove duplicate objects."""
     res = []
     [res.append(o) for o in objects if not o in res]
     return res
@@ -55,7 +63,6 @@ def print_summary(objects, limit=15, sort='size', order='descending'):
     limit -- the maximum number of elements to be listed
     sort  -- sort elements by 'size', 'type', or '#'
     order -- sort 'ascending' or 'descending'
-
     """
     # input validation
     sorts = ['type', '#', 'size']
@@ -95,13 +102,14 @@ def print_summary(objects, limit=15, sort='size', order='descending'):
     _print_table(rows)
 
 def _print_table(rows, header=True):
-        """ Outputs a list of lists as a pr
+        """Print a list of lists as a pretty table.
 
-        - rows - list of lists
-        - header - if True the first row is treated as a table header
+        Keyword arguments:
+        header -- if True the first row is treated as a table header
 
         inspired by http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/267662
         """
+
         border="="
         # vertical delimiter
         vdelim = " | "
