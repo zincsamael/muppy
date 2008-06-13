@@ -11,6 +11,29 @@ class MuppyTest(unittest.TestCase):
         """Check that objects returns a non-empty list."""
         self.failUnless(len(muppy.get_objects()) > 0)
 
+    def test_diff(self):
+        """Check if the diff of to object lists is correct.
+
+        The diff has to work in both directions, that is it has to show
+        newly created objects, as well as removed objects.
+        The sorting is irrelevant.
+        """
+        (o1, o2, o3, o4, o5) = (1, 'a', 'b', 4, 5)
+        list1 = [o1, o2, o3, o4]
+        list2 = [o1, o2, o3, o4, o5]
+        list3 = [o5, o3, o1, o4, o2]
+
+        expected = {'+': [], '-': []}
+        self.assertEqual(muppy.get_diff([], []), expected)
+
+        expected = {'+': [o5], '-': []}
+        self.assertEqual(muppy.get_diff(list1, list2), expected)
+        self.assertEqual(muppy.get_diff(list1, list3), expected)
+        
+        expected = {'+': [], '-': [5]}
+        self.assertEqual(muppy.get_diff(list2, list1), expected)
+        self.assertEqual(muppy.get_diff(list3, list1), expected)
+
     def test_sort(self):
         """Check that objects are sorted by size."""
         objects = ['', 'a', 'ab', 'ab', 'abc', '0']
@@ -99,7 +122,7 @@ class MuppyTest(unittest.TestCase):
         
         That, is no objects are listed twice. This does not apply to objects
         with same values."""
-        (o1, o2, o3, o4, o5) = (1, 'a', 'b', 4, 5)
+        (o1, o2, o3, o4, o5) = (1, 'a', 'b', 'a', 5)
         objects = [o1, o2, o3, o4, o5, o5, o4, o3, o2, o1]
         expected = set(objects)
         res = muppy.remove_duplicates(objects)

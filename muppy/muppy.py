@@ -1,17 +1,55 @@
+"""Tool for measuring the memory usage of Python applications.
+
+- currently only based on Python 2.6 sys.getsizeof
+- works with lists -> time intensive computations
+
+"""
+
+
 import gc
 import string
 import sys
 
+TPFLAGS_HAVE_GC = 1<<14
 
 def get_objects():
     """Return a list of all known (gc-vice) objects. """
-    return gc.get_objects()
+    res = []
+    refcount = 0
+
+    tmp = gc.get_objects()
+    for o in tmp:
+        refs = get_referents(o)
+        refcount += len(refs)
+        for ref in refs:
+            if (type).__flags__ & TPFLAGS_HAVE_GC:
+                res.append(ref)
+    res.extend(tmp)
+    res = remove_duplicates(res)
+#    print "refcount: %d" % refcount
+    return res
+    
 
 def get_size(objects):
     """Compute the size of all objects."""
     res = 0
     for o in objects:
-        res += sys.getsizeof(o)
+        try:
+            res += sys.getsizeof(o)
+        except AttributeError:
+            print "IGNORING: type=%s; o=%s" % (str(type(o)), str(o))
+
+    return res
+
+def get_diff(left, right):
+    """Get the difference of both lists.
+
+    The result will be a dict with this form {'+': [], '-': []}.
+    Items listed in '+' exist only in the right list,
+    items listed in '-' exist only in the left list."""
+    res = {'+': [], '-': []}
+    res['+'] = [o for o in right if o not in left]
+    res['-'] = [o for o in left if o not in right]
     return res
 
 def sort(objects):
@@ -51,10 +89,18 @@ def get_referents(object, level=1):
     return res
 
 def remove_duplicates(objects):
-    """Remove duplicate objects."""
-    res = []
-    [res.append(o) for o in objects if not o in res]
-    return res
+    """Remove duplicate objects.
+
+    Inspired by http://www.peterbe.com/plog/uniqifiers-benchmark"""
+    seen = {}
+    result = []
+    for item in objects:
+        marker = id(item)
+        if marker in seen: 
+            continue
+        seen[marker] = 1
+        result.append(item)
+    return result
 
 def print_summary(objects, limit=15, sort='size', order='descending'):
     """Print a memory usage summary for a passed objects.
@@ -75,11 +121,15 @@ def print_summary(objects, limit=15, sort='size', order='descending'):
     summary = {}
     for o in objects:
         otype = type(o)
-        if otype in summary:
-            summary[otype].append(sys.getsizeof(o))
-        else:
-            summary[otype] = []
-            summary[otype].append(sys.getsizeof(o))
+        try:
+            if otype in summary:
+                summary[otype].append(sys.getsizeof(o))
+            else:
+                summary[otype] = []
+                summary[otype].append(sys.getsizeof(o))
+        except AttributeError:
+            print "IGNORING: type=%s; o=%s" % (str(type(o)), str(o))
+                    
     # build rows
     rows = []
     for otype, sizes in summary.iteritems():
@@ -109,7 +159,6 @@ def _print_table(rows, header=True):
 
         inspired by http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/267662
         """
-
         border="="
         # vertical delimiter
         vdelim = " | "
