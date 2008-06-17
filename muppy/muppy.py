@@ -26,7 +26,6 @@ def get_objects():
                 res.append(ref)
     res.extend(tmp)
     res = remove_duplicates(res)
-#    print "refcount: %d" % refcount
     return res
     
 
