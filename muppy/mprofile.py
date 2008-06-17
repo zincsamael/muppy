@@ -10,8 +10,8 @@ import muppy
 class MProfiler(object):
     """A memory usage profiler class.
 
-    Memory data for each function is stored as a XXX-tuple in the dictionary
-    self.memories[].  The index is always a codepoint (see below).
+    Memory data for each function is stored as a 3-element list in the 
+    dictionary self.memories. The index is always a codepoint (see below).
     The following are the definitions of the members:
 
     [0] = The number of times this function was called
@@ -21,17 +21,23 @@ class MProfiler(object):
     A codepoint is a list of 3-tuple of the type 
     (filename, functionname, linenumber). You can omit either element, which
     will cause the profiling to be triggered if any of the other criteria
-    match. E.g 
+    match. E.g.
     - (None, foo, None), will profile any foo function,
     - (bar, foo, None) will profile only the foo function from the bar file, 
     - (bar, foo, 17) will profile only line 17 of the foo function defined 
       in the file bar.
+
+    Additionally, you can define on what events you want the profiling be 
+    triggered. Possible events are defined in 
+    http://docs.python.org/lib/debugger-hooks.html. 
+
+    If you do not define either codepoints or events, the profiler will 
+    record the memory usage in at every codepoint and event.
+
     """
 
     def __init__(self, codepoints=None, events=None):
         """
-        Possible events are defined in http://docs.python.org/lib/debugger-hooks.html.
-
         keyword arguments:
         codepoints -- a list of points in code to monitor (defaults to all codepoints)
         events -- a list of events to monitor (defaults to all events)
@@ -63,7 +69,7 @@ class MProfiler(object):
                 objects = muppy.get_objects()
                 size = muppy.get_size(objects)
                 if cp not in self.memories.keys():
-                    self.memories[cp] = [0,0,0,0,0]
+                    self.memories[cp] = [0,0,0,0]
                     self.memories[cp][0] = 1
                     self.memories[cp][1] = size
                     self.memories[cp][2] = size
@@ -87,7 +93,4 @@ if __name__ == "__main__":
     p.run("print 'hello'")
     print p.memories
 
-#    import perftests
-#    p = MProfiler(events=["return"], codepoints=[(None, 'fib', None)])
-#    p.run("perftests.fib(2)")
-#    print p.memories
+
