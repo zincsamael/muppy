@@ -8,7 +8,7 @@ import timeit
 
 import muppy
 from muppy import *
-import sizeit
+#import sizeit
 
 def fib(n=1):
     """Fibonacci of n.
@@ -33,17 +33,27 @@ def mem(listcount=100, objectcount=100, max=1000000):
         res.append(l)
     return res
 
-def performance_profile(func=None, showstats=True, **args):
-    total = {}
-    def profiler(frame, event, arg):
-        objects = get_objects()
-        frame_info = inspect.getframeinfo(frame)
-        string = str(frame_info[2]) + ":" + str(frame_info[1]) + "." + str(frame_info[3])
-        total[datetime.now()] = (len(objects), get_size(objects), string)
-        print string
-        print(len(objects), get_size(objects))
 
-    sys.setprofile(profiler)
+total = {}
+def profiler(frame, event, arg):
+    objects = get_objects()
+    frame_info = inspect.getframeinfo(frame)
+    string = str(frame_info[2]) + ":" + str(frame_info[1]) + "." + str(frame_info[3])
+    total[datetime.now()] = (len(objects), get_size(objects), string)
+    print string
+    print(len(objects), get_size(objects))
+
+snapshot_func=None
+snapshot_event='return'
+def snapshot_profiler(frame, event, arg):
+    frame_info = inspect.getframeinfo(frame)
+    if (frame_info[2] == snapshot_func.__name__) and (event == snapshot_event):
+        profiler(frame, event, arg)
+    
+
+
+def performance_profile(func=None, prof=None, showstats=True, **args):
+    sys.setprofile(prof)
     if func != None:
         func(**args)
     sys.setprofile(None)
@@ -66,9 +76,9 @@ def performance_longlist(max=1000000, func=None, number=1):
 
 def perf_meas(methods='b'):
     def perf_fib():
-        performance_profile(func=fib, n=3)
+        performance_profile(func=fib, prof=profiler, n=3)
     def perf_mem():
-        performance_profile(func=mem,\
+        performance_profile(func=mem, prof=profiler,\
                             listcount=100, objectcount=100, max=1000000)
 
     if 'b' in  methods:
@@ -89,12 +99,29 @@ def perf_meas(methods='b'):
     if 'p' in  methods:
         print "performance_profile"
         print '--------------------'
-#        print "fib with  profiler: %f " % timeit.timeit(perf_fib, number=1)
-#        print "fib without  prof.: %f " % timeit.timeit(fib, number=100)
-        print "mem with  profiler: %f " % timeit.timeit(perf_mem, number=1)
-        print "mem without  prof.: %f " % timeit.timeit(mem, number=100)
+        print "fib with  profiler: %f " % timeit.timeit(perf_fib, number=1)
+        print "fib without  prof.: %f " % timeit.timeit(fib, number=100)
+#        print "mem with  profiler: %f " % timeit.timeit(perf_mem, number=1)
+#        print "mem without  prof.: %f " % timeit.timeit(mem, number=100)
+        print
+
+    if 's' in  methods:
+        def perf_snap_fib():
+            performance_profile(func=fib, prof=snapshot_profiler, n=3)
+        def perf_snap_mem():
+            performance_profile(func=mem, prof=snapshot_profiler,\
+                                    listcount=100, objectcount=100, max=1000000)
+        print "performance_profile"
+        print '--------------------'
+        global snapshot_func
+        snapshot_func=fib
+        print "fib with  profiler: %f " % timeit.timeit(perf_snap_fib, number=1)
+        print "fib without  prof.: %f " % timeit.timeit(fib, number=100)
+#        snapshot_func=mem
+#        print "mem with  profiler: %f " % timeit.timeit(perf_snap_mem, number=1)
+#        print "mem without  prof.: %f " % timeit.timeit(mem, number=100)
         print
 
 
 if __name__ == "__main__":
-    perf_meas(methods='bl')
+    perf_meas(methods='s')
