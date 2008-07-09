@@ -72,6 +72,10 @@ menudefs = [
    ('_Configure IDLE...', '<<open-config-dialog>>'),
    None,
    ]),
+ ('mprof', [
+   ('_Create Snapshot', '<<create-memory-snapshot>>'),
+   None,
+   ]),
  ('help', [
    ('_About IDLE', '<<about-idle>>'),
    None,

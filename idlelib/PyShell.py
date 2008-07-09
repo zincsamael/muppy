@@ -36,6 +36,8 @@ import rpc
 import Debugger
 import RemoteDebugger
 
+from muppy import muppy
+
 IDENTCHARS = string.ascii_letters + string.digits + "_"
 LOCALHOST = '127.0.0.1'
 
@@ -790,6 +792,7 @@ class PyShell(OutputWindow):
         ("debug", "_Debug"),
         ("options", "_Options"),
         ("windows", "_Windows"),
+        ("mprof", "_MProf"),
         ("help", "_Help"),
     ]
 
@@ -830,6 +833,7 @@ class PyShell(OutputWindow):
         text.bind("<<open-stack-viewer>>", self.open_stack_viewer)
         text.bind("<<toggle-debugger>>", self.toggle_debugger)
         text.bind("<<toggle-jit-stack-viewer>>", self.toggle_jit_stack_viewer)
+        text.bind("<<create-memory-snapshot>>", self.memory_snapshot)
         if use_subprocess:
             text.bind("<<view-restart>>", self.view_restart_mark)
             text.bind("<<restart-shell>>", self.restart_shell)
@@ -1227,6 +1231,9 @@ class PyShell(OutputWindow):
             self.canceled = 0
             if not use_subprocess:
                 raise KeyboardInterrupt
+
+    def memory_snapshot(self, s):
+        muppy.print_summary(muppy.get_objects())
 
 class PseudoFile(object):
 
