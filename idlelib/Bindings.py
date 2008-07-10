@@ -73,7 +73,8 @@ menudefs = [
    None,
    ]),
  ('mprof', [
-   ('_Create Snapshot', '<<create-memory-snapshot>>'),
+   ('Print _Snapshot', '<<print-memory-snapshot>>'),
+   ('Print _Diff', '<<print-memory-diff>>'),
    None,
    ]),
  ('help', [

@@ -36,6 +36,7 @@ import rpc
 import Debugger
 import RemoteDebugger
 
+import gc
 from muppy import muppy
 
 IDENTCHARS = string.ascii_letters + string.digits + "_"
@@ -833,7 +834,8 @@ class PyShell(OutputWindow):
         text.bind("<<open-stack-viewer>>", self.open_stack_viewer)
         text.bind("<<toggle-debugger>>", self.toggle_debugger)
         text.bind("<<toggle-jit-stack-viewer>>", self.toggle_jit_stack_viewer)
-        text.bind("<<create-memory-snapshot>>", self.memory_snapshot)
+        text.bind("<<print-memory-snapshot>>", self.memory_snapshot)
+        text.bind("<<print-memory-diff>>", self.memory_diff)
         if use_subprocess:
             text.bind("<<view-restart>>", self.view_restart_mark)
             text.bind("<<restart-shell>>", self.restart_shell)
@@ -853,6 +855,8 @@ class PyShell(OutputWindow):
         self.history = self.History(self.text)
         #
         self.pollinterval = 50  # millisec
+        # memory profiling
+        self.s0 = muppy.summarize(muppy.get_objects())
 
     def get_standard_extension_names(self):
         return idleConf.GetExtensions(shell_only=True)
@@ -1233,8 +1237,21 @@ class PyShell(OutputWindow):
                 raise KeyboardInterrupt
 
     def memory_snapshot(self, s):
+        gc.collect()
+        print
         muppy.print_summary(muppy.get_objects())
-
+        
+    def memory_diff(self, s):
+        def sweep(summary):
+            return [o for o in summary if o[1] != 0]
+        
+        gc.collect()
+        self.s1 = muppy.summarize(muppy.get_objects())
+        print
+        muppy._print_table(sweep(muppy.get_summary_diff(self.s0, self.s1)))
+        self.s0 = self.s1
+        
+        
 class PseudoFile(object):
 
     def __init__(self, shell, tags, encoding=None):
