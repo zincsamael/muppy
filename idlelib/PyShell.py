@@ -856,7 +856,7 @@ class PyShell(OutputWindow):
         #
         self.pollinterval = 50  # millisec
         # memory profiling
-        self.s0 = muppy.summarize(muppy.get_objects())
+        self.memory_monitor = muppy.monitor()
 
     def get_standard_extension_names(self):
         return idleConf.GetExtensions(shell_only=True)
@@ -1242,14 +1242,8 @@ class PyShell(OutputWindow):
         muppy.print_summary(muppy.get_objects())
         
     def memory_diff(self, s):
-        def sweep(summary):
-            return [o for o in summary if o[1] != 0]
-        
-        gc.collect()
-        self.s1 = muppy.summarize(muppy.get_objects())
         print
-        muppy._print_table(sweep(muppy.get_summary_diff(self.s0, self.s1)))
-        self.s0 = self.s1
+        self.memory_monitor.print_diff()
         
         
 class PseudoFile(object):
