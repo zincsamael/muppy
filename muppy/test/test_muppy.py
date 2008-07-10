@@ -34,16 +34,6 @@ class MuppyTest(unittest.TestCase):
         self.assertEqual(muppy.get_diff(list2, list1), expected)
         self.assertEqual(muppy.get_diff(list3, list1), expected)
 
-    def test_sort(self):
-        """Check that objects are sorted by size."""
-        objects = ['', 'a', 'ab', 'ab', 'abc', '0']
-        objects = muppy.sort(objects)
-        while len(objects) > 1:
-            prev_o = objects.pop(0)
-            self.assert_(sys.getsizeof(objects[0]) >= sys.getsizeof(prev_o),\
-                 "The previous element appears to be larger than the " +\
-                 "current: %s<%s" % (prev_o, objects[0]))
-
     def test_filter_by_type(self):
         """Check that only elements of a certain type are included,
         no elements are removed which belong to this type and 
@@ -130,7 +120,54 @@ class MuppyTest(unittest.TestCase):
         for o in res:
             self.assert_(o in expected)
 
+    def test_sort(self):
+        """Check that objects are sorted by size."""
+        objects = ['', 'a', 'ab', 'ab', 'abc', '0']
+        objects = muppy.sort(objects)
+        while len(objects) > 1:
+            prev_o = objects.pop(0)
+            self.assert_(sys.getsizeof(objects[0]) >= sys.getsizeof(prev_o),\
+                 "The previous element appears to be larger than the " +\
+                 "current: %s<%s" % (prev_o, objects[0]))
 
+    def test_summarize(self):
+        objects = [1, 'a', 'b', 'a', 5, [], {}]
+        expected = [[str, 3, 3*sys.getsizeof('a')],\
+                    [int, 2, 2*sys.getsizeof(1)],\
+                    [list, 1, sys.getsizeof([])],\
+                    [dict, 1, sys.getsizeof({})]]
+        res = muppy.summarize(objects)
+        for row_e in res:
+            self.assertTrue(row_e in expected)
+
+    def test_summary_diff(self):
+        left = [[str, 3, 3*sys.getsizeof('a')],\
+                [int, 2, 2*sys.getsizeof(1)],\
+                [list, 1, sys.getsizeof([])],\
+                [dict, 1, sys.getsizeof({})]]
+        right = [[str, 2, 2*sys.getsizeof('a')],\
+                 [int, 3, 3*sys.getsizeof(1)],\
+                 [list, 1, sys.getsizeof([])],\
+                 [dict, 1, sys.getsizeof({})],
+                 [tuple, 1, sys.getsizeof((1,2))]]
+
+        expected = [[str, -1, -1*sys.getsizeof('a')],\
+                    [int, 1, +1*sys.getsizeof(1)],\
+                    [list, 0, 0],\
+                    [dict, 0, 0],
+                    [tuple, 1, sys.getsizeof((1,2))]]
+        res = muppy.get_summary_diff(left, right)
+        print 
+        print left
+        print right
+        print
+        print expected
+        print res
+        for row_e in res:
+            self.assertTrue(row_e in expected)
+        
+        
+            
 test_print_table = """
 
 The _print_table function should print a nice, clean table.
@@ -154,7 +191,7 @@ At first the default values.
 >>> muppy.print_summary(objects)
           types |   # objects |   total size
 =============== | =========== | ============
-  <type 'dict'> |           2 |          512
+  <type 'dict'> |           2 |          560
    <type 'str'> |           3 |          126
    <type 'int'> |           4 |           96
   <type 'long'> |           2 |           66
@@ -167,7 +204,7 @@ Next, we try it sorted by object number
    <type 'int'> |           4 |           96
    <type 'str'> |           3 |          126
   <type 'long'> |           2 |           66
-  <type 'dict'> |           2 |          512
+  <type 'dict'> |           2 |          560
   <type 'list'> |           1 |           40
 
 Now, object number and with ascending order
@@ -176,7 +213,7 @@ Now, object number and with ascending order
 =============== | =========== | ============
   <type 'list'> |           1 |           40
   <type 'long'> |           2 |           66
-  <type 'dict'> |           2 |          512
+  <type 'dict'> |           2 |          560
    <type 'str'> |           3 |          126
    <type 'int'> |           4 |           96
 
@@ -191,15 +228,15 @@ Finally, sorted by size with descending order
 >>> muppy.print_summary(objects, sort='size', order='descending')
           types |   # objects |   total size
 =============== | =========== | ============
-  <type 'dict'> |           2 |          512
+  <type 'dict'> |           2 |          560
    <type 'str'> |           3 |          126
    <type 'int'> |           4 |           96
   <type 'long'> |           2 |           66
   <type 'list'> |           1 |           40
 """
       
-__test__ = {"test_print_table": test_print_table,\
-            "test_print_summary": test_print_summary}
+#__test__ = {"test_print_table": test_print_table,\
+#            "test_print_summary": test_print_summary}
 
 def suite():
     suite = unittest.makeSuite(MuppyTest,'test') 

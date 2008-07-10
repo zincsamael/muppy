@@ -27,7 +27,6 @@ def get_objects():
     res.extend(tmp)
     res = remove_duplicates(res)
     return res
-    
 
 def get_size(objects):
     """Compute the size of all objects."""
@@ -49,6 +48,55 @@ def get_diff(left, right):
     res = {'+': [], '-': []}
     res['+'] = [o for o in right if o not in left]
     res['-'] = [o for o in left if o not in right]
+    return res
+
+def summarize(objects):
+    """Summarize the findings of get_objects().
+
+    Return a list of lists, where each row consists of
+    [type, number of objects of this type, total size of these objects].
+    No guarantee regarding the order is given.
+
+    """
+    summary = {}
+    for o in objects:
+        otype = type(o)
+        if otype in summary:
+            summary[otype].append(sys.getsizeof(o))
+        else:
+            summary[otype] = []
+            summary[otype].append(sys.getsizeof(o))
+    # build rows
+    rows = []
+    for otype, sizes in summary.iteritems():
+        rows.append([otype, len(sizes), sum(sizes)])
+    return rows
+
+def get_summary_diff(left, right):
+    """Get the difference of two summaries.
+
+    Subtracts the values of the left summary from the values of the right
+    summary. If similar rows appear on both sides, the are included in the
+    summary with zeros for number of elements and total size.
+
+    """
+    res = []
+    for row_r in right:
+        found = False
+        for row_l in left:
+            if row_r[0] == row_l[0]:
+                res.append([row_r[0], row_r[1] - row_l[1], row_r[2] - row_l[2]])
+                found = True
+        if not found:
+            res.append(row_r)
+
+    for row_l in left:
+        found = False
+        for row_r in right:
+            if row_l[0] == row_r[0]:
+                found = True
+        if not found:
+            res.append([row_l[0], -row_l[1], -row_l[2]])
     return res
 
 def sort(objects):
@@ -116,23 +164,7 @@ def print_summary(objects, limit=15, sort='size', order='descending'):
     orders = ['ascending', 'descending']
     if order not in orders:
         raise ValueError("invalid order, should be one of" + str(orders))
-    # summarize
-    summary = {}
-    for o in objects:
-        otype = type(o)
-        try:
-            if otype in summary:
-                summary[otype].append(sys.getsizeof(o))
-            else:
-                summary[otype] = []
-                summary[otype].append(sys.getsizeof(o))
-        except AttributeError:
-            print "IGNORING: type=%s; o=%s" % (str(type(o)), str(o))
-                    
-    # build rows
-    rows = []
-    for otype, sizes in summary.iteritems():
-        rows.append([otype, len(sizes), sum(sizes)])
+    rows = summarize(objects)
     # sort rows
     if sorts.index(sort) == 0:
         if order == "ascending":
@@ -177,3 +209,33 @@ def _print_table(rows, header=True):
             print vdelim.join([justify(str(item),width) for (item,width) in zip(row,colWidths)])
             if header: print borderline; header=False
 
+            
+class monitor(object):
+    """ Small helper class to track changes between snapshots.
+
+    On initialisation, a first snapshot is taken. Everytime diff() is called,
+    a new snapshot will be taken. The new snapshot becomes the old one and a
+    diff can be extracted.
+    This is often helpful to see which new objects were created and which
+    objects disappeared since the last invocation.
+
+    """
+    import gc
+
+    def __init__(self):
+        self.s0 = summarize(get_objects())
+
+    def _sweep(self, summary):
+        return [o for o in summary if o[1] != 0]
+
+    def diff(self):
+        """ Create a new snapshot and return the diff to the last snapshot."""
+        gc.collect()
+        self.s1 = summarize(get_objects())
+        res = self._sweep(get_summary_diff(self.s0, self.s1))
+        self.s0 = self.s1
+        return res
+    
+    def print_diff(self):
+        """Call diff() and print it."""
+        _print_table(self.diff())
