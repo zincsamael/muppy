@@ -115,7 +115,7 @@ class MuppyTest(unittest.TestCase):
         (o1, o2, o3, o4, o5) = (1, 'a', 'b', 'a', 5)
         objects = [o1, o2, o3, o4, o5, o5, o4, o3, o2, o1]
         expected = set(objects)
-        res = muppy.remove_duplicates(objects)
+        res = muppy._remove_duplicates(objects)
         self.assertEqual(len(expected), len(res))
         for o in res:
             self.assert_(o in expected)
@@ -132,37 +132,31 @@ class MuppyTest(unittest.TestCase):
 
     def test_summarize(self):
         objects = [1, 'a', 'b', 'a', 5, [], {}]
-        expected = [[str, 3, 3*sys.getsizeof('a')],\
-                    [int, 2, 2*sys.getsizeof(1)],\
-                    [list, 1, sys.getsizeof([])],\
-                    [dict, 1, sys.getsizeof({})]]
+        expected = [[str(str), 3, 3*sys.getsizeof('a')],\
+                    [str(int), 2, 2*sys.getsizeof(1)],\
+                    [str(list), 1, sys.getsizeof([])],\
+                    [str(dict), 1, sys.getsizeof({})]]
         res = muppy.summarize(objects)
         for row_e in res:
             self.assertTrue(row_e in expected)
 
     def test_summary_diff(self):
-        left = [[str, 3, 3*sys.getsizeof('a')],\
-                [int, 2, 2*sys.getsizeof(1)],\
-                [list, 1, sys.getsizeof([])],\
-                [dict, 1, sys.getsizeof({})]]
-        right = [[str, 2, 2*sys.getsizeof('a')],\
-                 [int, 3, 3*sys.getsizeof(1)],\
-                 [list, 1, sys.getsizeof([])],\
-                 [dict, 1, sys.getsizeof({})],
-                 [tuple, 1, sys.getsizeof((1,2))]]
+        left = [[str(str), 3, 3*sys.getsizeof('a')],\
+                [str(int), 2, 2*sys.getsizeof(1)],\
+                [str(list), 1, sys.getsizeof([])],\
+                [str(dict), 1, sys.getsizeof({})]]
+        right = [[str(str), 2, 2*sys.getsizeof('a')],\
+                 [str(int), 3, 3*sys.getsizeof(1)],\
+                 [str(list), 1, sys.getsizeof([1,2,3])],\
+                 [str(dict), 1, sys.getsizeof({})],
+                 [str(tuple), 1, sys.getsizeof((1,2))]]
 
-        expected = [[str, -1, -1*sys.getsizeof('a')],\
-                    [int, 1, +1*sys.getsizeof(1)],\
-                    [list, 0, 0],\
-                    [dict, 0, 0],
-                    [tuple, 1, sys.getsizeof((1,2))]]
+        expected = [[str(str), -1, -1*sys.getsizeof('a')],\
+                    [str(int), 1, +1*sys.getsizeof(1)],\
+                    [str(list), 0, sys.getsizeof([1,2,3]) - sys.getsizeof([])],\
+                    [str(dict), 0, 0],
+                    [str(tuple), 1, sys.getsizeof((1,2))]]
         res = muppy.get_summary_diff(left, right)
-        print 
-        print left
-        print right
-        print
-        print expected
-        print res
         for row_e in res:
             self.assertTrue(row_e in expected)
         

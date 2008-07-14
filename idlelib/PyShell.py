@@ -1243,6 +1243,7 @@ class PyShell(OutputWindow):
         
     def memory_diff(self, s):
         print
+        gc.collect()
         self.memory_monitor.print_diff()
         
         

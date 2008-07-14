@@ -12,24 +12,28 @@ import sys
 
 TPFLAGS_HAVE_GC = 1<<14
 
-def get_objects():
-    """Return a list of all known (gc-vice) objects. """
+def get_objects(remove_dups=True):
+    """Return a list of all known (gc-vice) objects.
+
+    Keyword arguments:
+    remove_dups -- if True, all duplicate objects will be removed.
+    
+    """
     res = []
-    refcount = 0
 
     tmp = gc.get_objects()
     for o in tmp:
         refs = get_referents(o)
-        refcount += len(refs)
         for ref in refs:
             if (type).__flags__ & TPFLAGS_HAVE_GC:
                 res.append(ref)
     res.extend(tmp)
-    res = remove_duplicates(res)
+    if remove_dups:
+        res = _remove_duplicates(res)
     return res
 
 def get_size(objects):
-    """Compute the size of all objects."""
+    """Compute the total size of all elements in objects."""
     res = 0
     for o in objects:
         try:
@@ -44,23 +48,25 @@ def get_diff(left, right):
 
     The result will be a dict with this form {'+': [], '-': []}.
     Items listed in '+' exist only in the right list,
-    items listed in '-' exist only in the left list."""
+    items listed in '-' exist only in the left list.
+
+    """
     res = {'+': [], '-': []}
     res['+'] = [o for o in right if o not in left]
     res['-'] = [o for o in left if o not in right]
     return res
 
 def summarize(objects):
-    """Summarize the findings of get_objects().
+    """Summarize an objects list.
 
     Return a list of lists, where each row consists of
-    [type, number of objects of this type, total size of these objects].
+    [str(type), number of objects of this type, total size of these objects].
     No guarantee regarding the order is given.
 
     """
     summary = {}
     for o in objects:
-        otype = type(o)
+        otype = str(type(o))
         if otype in summary:
             summary[otype].append(sys.getsizeof(o))
         else:
@@ -105,7 +111,15 @@ def sort(objects):
     return objects
     
 def filter(objects, Type=object, min=-1, max=-1):
-    """Filter objects."""
+    """Filter objects.
+
+    The filter can be by type, minimum size, and/or maximum size.
+
+    Keyword arguments:
+    Type -- object type to filter by
+    min -- minimum object size
+    max -- maximum object size
+    """
     res = []
     if min > max:
         raise ValueError("minimum must be smaller than maximum")
@@ -121,7 +135,7 @@ def get_referents(object, level=1):
     """Get all referents of an object up to a certain level.
 
     The referents will not be returned in a specific order and
-    will not contain duplicate objects.
+    will not contain duplicate objects. Duplicate objects will be removed.
 
     Keyword arguments:
     level -- level of indirection to which referents considered.
@@ -132,10 +146,10 @@ def get_referents(object, level=1):
     if level > 0:
         for o in res:
             res.extend(get_referents(o, level))
-    res = remove_duplicates(res)
+    res = _remove_duplicates(res)
     return res
 
-def remove_duplicates(objects):
+def _remove_duplicates(objects):
     """Remove duplicate objects.
 
     Inspired by http://www.peterbe.com/plog/uniqifiers-benchmark"""
@@ -149,8 +163,8 @@ def remove_duplicates(objects):
         result.append(item)
     return result
 
-def print_summary(objects, limit=15, sort='size', order='descending'):
-    """Print a memory usage summary for a passed objects.
+def print_summary(rows, limit=15, sort='size', order='descending'):
+    """Print the rows as a summary.
 
     Keyword arguments:
     limit -- the maximum number of elements to be listed
@@ -164,7 +178,6 @@ def print_summary(objects, limit=15, sort='size', order='descending'):
     orders = ['ascending', 'descending']
     if order not in orders:
         raise ValueError("invalid order, should be one of" + str(orders))
-    rows = summarize(objects)
     # sort rows
     if sorts.index(sort) == 0:
         if order == "ascending":
@@ -211,31 +224,114 @@ def _print_table(rows, header=True):
 
             
 class monitor(object):
-    """ Small helper class to track changes between snapshots.
+    """ Helper class to track changes between snapshots.
+
+    A snapshot is a summary of all currently existing objects (see the
+    summarize function from the muppy module).
 
     On initialisation, a first snapshot is taken. Everytime diff() is called,
-    a new snapshot will be taken. The new snapshot becomes the old one and a
-    diff can be extracted.
+    a new snapshot will be taken. Thus, a diff between the new and the last
+    snapshot can be extracted.
     This is often helpful to see which new objects were created and which
     objects disappeared since the last invocation.
 
     """
-    import gc
+    def __init__(self, ignore_self=True):
+        """Constructor.
 
-    def __init__(self):
+        Keyword arguments:
+        ignore_self -- if True, snapshots managed by this object will be
+                       ignored.
+        """
         self.s0 = summarize(get_objects())
+        self.snapshots = {}
+        self.ignore_self = ignore_self
 
-    def _sweep(self, summary):
-        return [o for o in summary if o[1] != 0]
+    def _make_snapshot(self):
+        """Return a snapshot.
 
-    def diff(self):
-        """ Create a new snapshot and return the diff to the last snapshot."""
-        gc.collect()
-        self.s1 = summarize(get_objects())
-        res = self._sweep(get_summary_diff(self.s0, self.s1))
-        self.s0 = self.s1
+        It is in the user's responsibility to invoke a garbage collector
+        whenever it seems appropriate. Usually, this should be done before
+        a snapshot is created.
+
+        If ignore_self is True, stored snapshots will be ignored.
+        """
+
+        def subtract(summary, o):
+            """Remove o from the summary, by subtracting it's size."""
+            found = False
+            row = [str(type(o)), 1, sys.getsizeof(o)]
+            for r in summary:
+                if r[0] == row[0]:
+                    (r[1], r[2]) = (r[1] - row[1], r[2] - row[2])
+                    found = True
+            if not found:
+                summary.append([row[0], -row[1], -row[2]])
+            return summary
+
+        res = summarize(get_objects(remove_dups=False))
+
+        if self.ignore_self:
+            # snapshots dictionary
+            res = subtract(res, self.snapshots)
+            for k, v in self.snapshots.items():
+                # snapshot key
+                res = subtract(res, v)
+                # XXX: why do I need to subtract this twice?
+                res = subtract(res, v)
+                # snapshot
+                res = subtract(res, k)
+                for row in v:
+                    # snapshot row
+                    res = subtract(res, row)
+                    # XXX: why do I need to subtract this twice?
+                    res = subtract(res, row)
+                    for item in gc.get_referents(row):
+                        # row item
+                        res = subtract(res, item)
+                        pass
         return res
     
-    def print_diff(self):
-        """Call diff() and print it."""
-        _print_table(self.diff())
+    def _sweep(self, summary):
+        """Remove zero-length entries."""
+        return [o for o in summary if o[1] != 0]
+
+    def diff(self, snapshot1=None, snapshot2=None):
+        """Compute diff between to snapshots.
+
+        If no snapshot is provided, the diff from the last to the current
+        snapshot is used. If snapshot1 is provided the diff from snapshot1
+        to the current snapshot is used. If snapshot1 and snapshot2 are
+        provided, the diff between these two is used.
+
+        """
+        res = None
+        if snapshot2 is None:
+            self.s1 = self._make_snapshot()
+            if snapshot1 is None:
+                res = get_summary_diff(self.s0, self.s1)
+                self.s0 = self.s1
+            if snapshot1 is not None:
+                res = get_summary_diff(self.s1, snapshot1)
+            self.s0 = self.s1
+        if (snapshot1 is not None) and (snapshot2 is not None):
+            res = get_summary_diff(snapshot1, snapshot2)
+        return self._sweep(res)
+
+    def print_diff(self, snapshot1=None, snapshot2=None):
+        """Compute diff between to snapshots and print it.
+
+        If no snapshot is provided, the diff from the last to the current
+        snapshot is used. If snapshot1 is provided the diff from snapshot1
+        to the current snapshot is used. If snapshot1 and snapshot2 are
+        provided, the diff between these two is used.
+        """
+        print_summary(self.diff(snapshot1=snapshot1, snapshot2=snapshot2))
+
+    def store_snapshot(self, key):
+        """Store a current snapshot in self.snapshots."""
+        self.snapshots[key] = self._make_snapshot()
+        
+    def del_snapshot(self, key):
+        """Delete a previously stored snapshot."""
+        del(self.snapshots[key])
