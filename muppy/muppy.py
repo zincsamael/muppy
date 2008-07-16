@@ -172,23 +172,23 @@ def print_summary(rows, limit=15, sort='size', order='descending'):
     order -- sort 'ascending' or 'descending'
     """
     # input validation
-    sorts = ['type', '#', 'size']
-    if sort not in sorts:
-        raise ValueError("invalid sort, should be one of" + str(sorts))
+    sortby = ['type', '#', 'size']
+    if sort not in sortby:
+        raise ValueError("invalid sort, should be one of" + str(sortby))
     orders = ['ascending', 'descending']
     if order not in orders:
         raise ValueError("invalid order, should be one of" + str(orders))
     # sort rows
-    if sorts.index(sort) == 0:
+    if sortby.index(sort) == 0:
         if order == "ascending":
             rows.sort(lambda r1, r2: cmp(str(r1[0]),str(r2[0])))
         elif order == "descending":
             rows.sort(lambda r1, r2: -cmp(str(r1[0]),str(r2[0])))
     else: 
         if order == "ascending":
-            rows.sort(lambda r1, r2: r1[sorts.index(sort)] - r2[sorts.index(sort)])
+            rows.sort(lambda r1, r2: r1[sortby.index(sort)] - r2[sortby.index(sort)])
         elif order == "descending":
-            rows.sort(lambda r1, r2: r2[sorts.index(sort)] - r1[sorts.index(sort)])
+            rows.sort(lambda r1, r2: r2[sortby.index(sort)] - r1[sortby.index(sort)])
     # limit rows
     rows = rows[0:limit]
     # print rows
