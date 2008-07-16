@@ -1,7 +1,19 @@
 """Tool for measuring the memory usage of Python applications.
 
+To Do
+-----
+- always invoke gc.collect() before objects are fetched
+- more tests
+- do we need a IdentitySet?
+
+doc
+---
 - currently only based on Python 2.6 sys.getsizeof
 - works with lists -> time intensive computations
+- working with weakrefs not suitable
+- the more snapshots you store, the longer a new snapshot will take, if
+  you have ignore_self enabled. So keep the number of stored snapshots
+  reasonable. 
 
 """
 
@@ -159,6 +171,10 @@ def _remove_duplicates(objects):
         marker = id(item)
         if marker in seen: 
             continue
+
+        if (str(type(item)) == "<type 'tkapp'>") and (marker in seen):
+            print "shouldn't add it .. but I did"
+
         seen[marker] = 1
         result.append(item)
     return result
@@ -269,27 +285,64 @@ class monitor(object):
                 summary.append([row[0], -row[1], -row[2]])
             return summary
 
-        res = summarize(get_objects(remove_dups=False))
+        if not self.ignore_self:
+            res = summarize(get_objects())
+        else:
+            # If the user requested the data required to store snapshots to be
+            # ignored in the snapshots, we need to identify all objects which
+            # are related to each snapshot stored.
+            # Thus we build a list of all objects used for snapshot storage as
+            # well as a dictionary which tells us how often an object is
+            # referenced by the snapshots.
+            # During this identification process, more objects are referenced,
+            # namely int objects identifying referenced objects as well as the
+            # correspondind count.
+            # For all these objects it will be checked wether they are
+            # referenced from outside the monitor's scope. If not, they will be
+            # subtracted from the snapshot summary, otherwise they are
+            # included (as this indicates that they are relevant to the
+            # application). 
 
-        if self.ignore_self:
-            # snapshots dictionary
-            res = subtract(res, self.snapshots)
+            all_of_them = []  # every single object
+            ref_counter = {}  # how often it is referenced; (id(o), o) pairs
+            def store_info(o):
+                all_of_them.append(o)
+                if id(o) in ref_counter:
+                    ref_counter[id(o)] += 1
+                else:
+                    ref_counter[id(o)] = 1
+
+            # store infos on every single object related to the snapshots
+            store_info(self.snapshots)
             for k, v in self.snapshots.items():
-                # snapshot key
-                res = subtract(res, v)
-                # XXX: why do I need to subtract this twice?
-                res = subtract(res, v)
-                # snapshot
-                res = subtract(res, k)
+                store_info(k)
+                store_info(v)
                 for row in v:
-                    # snapshot row
-                    res = subtract(res, row)
-                    # XXX: why do I need to subtract this twice?
-                    res = subtract(res, row)
+                    store_info(row)
                     for item in gc.get_referents(row):
-                        # row item
-                        res = subtract(res, item)
-                        pass
+                        store_info(item)
+                        
+            # do the snapshot
+            res = summarize(get_objects())
+            # but also cleanup, otherwise the ref counting will be useless
+            gc.collect()
+
+            import time
+            t1 = time.time()
+            print "len(ref_counter.keys())=%s" % len(ref_counter.keys())
+            print "len(all_of_them)=%s" % len(all_of_them)
+            # remove ids stored in the ref_counter
+            for _id in ref_counter.keys():
+                # referenced in frame, ref_counter, ref_counter.keys()
+                if len(gc.get_referrers(_id)) == (3):
+                    subtract(res, _id)
+            for o in all_of_them:
+                # referenced in frame, snapshot, all_of_them
+                if len(gc.get_referrers(o)) == (ref_counter[id(o)] + 2):
+                    subtract(res, o)
+            print "time diff=%s" % (time.time() - t1)
+            print
+            
         return res
     
     def _sweep(self, summary):
