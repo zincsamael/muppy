@@ -327,10 +327,6 @@ class monitor(object):
             # but also cleanup, otherwise the ref counting will be useless
             gc.collect()
 
-            import time
-            t1 = time.time()
-            print "len(ref_counter.keys())=%s" % len(ref_counter.keys())
-            print "len(all_of_them)=%s" % len(all_of_them)
             # remove ids stored in the ref_counter
             for _id in ref_counter.keys():
                 # referenced in frame, ref_counter, ref_counter.keys()
@@ -340,8 +336,6 @@ class monitor(object):
                 # referenced in frame, snapshot, all_of_them
                 if len(gc.get_referrers(o)) == (ref_counter[id(o)] + 2):
                     subtract(res, o)
-            print "time diff=%s" % (time.time() - t1)
-            print
             
         return res
     
