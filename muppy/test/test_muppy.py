@@ -3,7 +3,7 @@ import random
 import sys
 import unittest
 
-import muppy
+from muppy import muppy
 
 class MuppyTest(unittest.TestCase):
 

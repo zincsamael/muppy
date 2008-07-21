@@ -1,6 +1,6 @@
 import unittest
 
-import mprofile
+from muppy import mprofile
 
 class MProfileTest(unittest.TestCase):
 
