@@ -64,8 +64,20 @@ def get_diff(left, right):
 
     """
     res = {'+': [], '-': []}
-    res['+'] = [o for o in right if o not in left]
-    res['-'] = [o for o in left if o not in right]
+    for o in right:
+        try:
+            if o not in left:
+                res['+'].append(o)
+        except AttributeError, inst:
+            print inst.args
+    for o in left:
+        try:
+            if o not in right:
+                res['-'].append(o)
+        except AttributeError, inst:
+            print inst.args
+#    res['+'] = [o for o in right if o not in left]
+#    res['-'] = [o for o in left if o not in right]
     return res
 
 def summarize(objects):
@@ -237,148 +249,3 @@ def _print_table(rows, header=True):
         for row in rows: 
             print vdelim.join([justify(str(item),width) for (item,width) in zip(row,colWidths)])
             if header: print borderline; header=False
-
-            
-class monitor(object):
-    """ Helper class to track changes between snapshots.
-
-    A snapshot is a summary of all currently existing objects (see the
-    summarize function from the muppy module).
-
-    On initialisation, a first snapshot is taken. Everytime diff() is called,
-    a new snapshot will be taken. Thus, a diff between the new and the last
-    snapshot can be extracted.
-    This is often helpful to see which new objects were created and which
-    objects disappeared since the last invocation.
-
-    """
-    def __init__(self, ignore_self=True):
-        """Constructor.
-
-        Keyword arguments:
-        ignore_self -- if True, snapshots managed by this object will be
-                       ignored.
-        """
-        self.s0 = summarize(get_objects())
-        self.snapshots = {}
-        self.ignore_self = ignore_self
-
-    def _make_snapshot(self):
-        """Return a snapshot.
-
-        It is in the user's responsibility to invoke a garbage collector
-        whenever it seems appropriate. Usually, this should be done before
-        a snapshot is created.
-
-        If ignore_self is True, stored snapshots will be ignored.
-        """
-
-        def subtract(summary, o):
-            """Remove o from the summary, by subtracting it's size."""
-            found = False
-            row = [str(type(o)), 1, sys.getsizeof(o)]
-            for r in summary:
-                if r[0] == row[0]:
-                    (r[1], r[2]) = (r[1] - row[1], r[2] - row[2])
-                    found = True
-            if not found:
-                summary.append([row[0], -row[1], -row[2]])
-            return summary
-
-        if not self.ignore_self:
-            res = summarize(get_objects())
-        else:
-            # If the user requested the data required to store snapshots to be
-            # ignored in the snapshots, we need to identify all objects which
-            # are related to each snapshot stored.
-            # Thus we build a list of all objects used for snapshot storage as
-            # well as a dictionary which tells us how often an object is
-            # referenced by the snapshots.
-            # During this identification process, more objects are referenced,
-            # namely int objects identifying referenced objects as well as the
-            # correspondind count.
-            # For all these objects it will be checked wether they are
-            # referenced from outside the monitor's scope. If not, they will be
-            # subtracted from the snapshot summary, otherwise they are
-            # included (as this indicates that they are relevant to the
-            # application). 
-
-            all_of_them = []  # every single object
-            ref_counter = {}  # how often it is referenced; (id(o), o) pairs
-            def store_info(o):
-                all_of_them.append(o)
-                if id(o) in ref_counter:
-                    ref_counter[id(o)] += 1
-                else:
-                    ref_counter[id(o)] = 1
-
-            # store infos on every single object related to the snapshots
-            store_info(self.snapshots)
-            for k, v in self.snapshots.items():
-                store_info(k)
-                store_info(v)
-                for row in v:
-                    store_info(row)
-                    for item in gc.get_referents(row):
-                        store_info(item)
-                        
-            # do the snapshot
-            res = summarize(get_objects())
-            # but also cleanup, otherwise the ref counting will be useless
-            gc.collect()
-
-            # remove ids stored in the ref_counter
-            for _id in ref_counter.keys():
-                # referenced in frame, ref_counter, ref_counter.keys()
-                if len(gc.get_referrers(_id)) == (3):
-                    subtract(res, _id)
-            for o in all_of_them:
-                # referenced in frame, snapshot, all_of_them
-                if len(gc.get_referrers(o)) == (ref_counter[id(o)] + 2):
-                    subtract(res, o)
-            
-        return res
-    
-    def _sweep(self, summary):
-        """Remove zero-length entries."""
-        return [o for o in summary if o[1] != 0]
-
-    def diff(self, snapshot1=None, snapshot2=None):
-        """Compute diff between to snapshots.
-
-        If no snapshot is provided, the diff from the last to the current
-        snapshot is used. If snapshot1 is provided the diff from snapshot1
-        to the current snapshot is used. If snapshot1 and snapshot2 are
-        provided, the diff between these two is used.
-
-        """
-        res = None
-        if snapshot2 is None:
-            self.s1 = self._make_snapshot()
-            if snapshot1 is None:
-                res = get_summary_diff(self.s0, self.s1)
-                self.s0 = self.s1
-            if snapshot1 is not None:
-                res = get_summary_diff(self.s1, snapshot1)
-            self.s0 = self.s1
-        if (snapshot1 is not None) and (snapshot2 is not None):
-            res = get_summary_diff(snapshot1, snapshot2)
-        return self._sweep(res)
-
-    def print_diff(self, snapshot1=None, snapshot2=None):
-        """Compute diff between to snapshots and print it.
-
-        If no snapshot is provided, the diff from the last to the current
-        snapshot is used. If snapshot1 is provided the diff from snapshot1
-        to the current snapshot is used. If snapshot1 and snapshot2 are
-        provided, the diff between these two is used.
-        """
-        print_summary(self.diff(snapshot1=snapshot1, snapshot2=snapshot2))
-
-    def store_snapshot(self, key):
-        """Store a current snapshot in self.snapshots."""
-        self.snapshots[key] = self._make_snapshot()
-        
-    def del_snapshot(self, key):
-        """Delete a previously stored snapshot."""
-        del(self.snapshots[key])
