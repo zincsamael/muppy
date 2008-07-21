@@ -14,11 +14,10 @@ def suite():
         moduleName = os.path.basename(moduleName)
         moduleName = moduleName.replace('.py', '')
         if moduleName != 'test_all':
-            print moduleName
             testModule = __import__(moduleName)
             s.addTest(defaultTestLoader.loadTestsFromModule(testModule))
     return s
     
 if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity=1).run(suite())
+    unittest.TextTestRunner(verbosity=2).run(suite())
 
