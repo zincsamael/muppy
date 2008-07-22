@@ -32,7 +32,7 @@ class SummaryTest(unittest.TestCase):
                     [str(list), 0, sys.getsizeof([1,2,3]) - sys.getsizeof([])],\
                     [str(dict), 0, 0],
                     [str(tuple), 1, sys.getsizeof((1,2))]]
-        res = summary.get_summary_diff(left, right)
+        res = summary.get_diff(left, right)
         for row_e in res:
             self.assertTrue(row_e in expected)
         
@@ -114,12 +114,29 @@ class SummaryTest(unittest.TestCase):
                 totalsize = sys.getsizeof('fox') - sys.getsizeof('42')
                 self.assert_(row[2] == totalsize)
         self.assert_(found_string == True)
+
+    def test_traverse(self):
+        """Check that all objects of a summary are traversed."""
+        touched = []
+        def remember(o, touched):
+            touched.append(o)
+
+        s = [['row1', 1, 2], ['row2', 3, 4], ['row3', 5, 6]]
+        summary._traverse(s, remember, touched)
+
+        self.assert_(s in touched)
+        for row in s:
+            self.assert_(row in touched)
+            for item in row:
+                self.assert_(item in touched)
+                
+            
         
-test_print_summary = """
+test_print_ = """
 >>> objects = [1,2,3,4,5L, 33000L, "a", "ab", "abc", [], {}, {10: "t"}, ]
 
 At first the default values.
->>> summary.print_summary(objects)
+>>> summary.print_(objects)
           types |   # objects |   total size
 =============== | =========== | ============
   <type 'dict'> |           2 |          560
@@ -129,7 +146,7 @@ At first the default values.
   <type 'list'> |           1 |           40
 
 Next, we try it sorted by object number
->>> summary.print_summary(objects, sort='#')
+>>> summary.print_(objects, sort='#')
           types |   # objects |   total size
 =============== | =========== | ============
    <type 'int'> |           4 |           96
@@ -139,7 +156,7 @@ Next, we try it sorted by object number
   <type 'list'> |           1 |           40
 
 Now, object number and with ascending order
->>> summary.print_summary(objects, sort='#', order='ascending')
+>>> summary.print_(objects, sort='#', order='ascending')
           types |   # objects |   total size
 =============== | =========== | ============
   <type 'list'> |           1 |           40
@@ -149,14 +166,14 @@ Now, object number and with ascending order
    <type 'int'> |           4 |           96
 
 Let's limit the output to two rows
->>> summary.print_summary(objects, limit=2, sort='#', order='ascending')
+>>> summary.print_(objects, limit=2, sort='#', order='ascending')
           types |   # objects |   total size
 =============== | =========== | ============
   <type 'list'> |           1 |           40
   <type 'long'> |           2 |           66
 
 Finally, sorted by size with descending order
->>> summary.print_summary(objects, sort='size', order='descending')
+>>> summary.print_(objects, sort='size', order='descending')
           types |   # objects |   total size
 =============== | =========== | ============
   <type 'dict'> |           2 |          560
@@ -183,7 +200,7 @@ The _print_table function should print a nice, clean table.
 """
   
 #__test__ = {"test_print_table": test_print_table,\
-#            "test_print_summary": test_print_summary}
+#            "test_print_": test_print_}
 
 def suite():
     suite = unittest.makeSuite(SummaryTest,'test') 

@@ -1,3 +1,4 @@
+import string
 import sys
 
 def summarize(objects):
@@ -22,12 +23,16 @@ def summarize(objects):
         rows.append([otype, len(sizes), sum(sizes)])
     return rows
 
-def get_summary_diff(left, right):
+def get_diff(left, right):
     """Get the difference of two summaries.
 
     Subtracts the values of the left summary from the values of the right
-    summary. If similar rows appear on both sides, the are included in the
-    summary with zeros for number of elements and total size.
+    summary.
+    If similar rows appear on both sides, the are included in the summary with
+    0 for number of elements and total size.
+    If the number of elements of a row of the diff is 0, but the total size is
+    not, it means that objects likely have changed, but not there number, thus
+    resulting in a changed size.
 
     """
     res = []
@@ -49,7 +54,7 @@ def get_summary_diff(left, right):
             res.append([row_l[0], -row_l[1], -row_l[2]])
     return res
 
-def print_summary(rows, limit=15, sort='size', order='descending'):
+def print_(rows, limit=15, sort='size', order='descending'):
     """Print the rows as a summary.
 
     Keyword arguments:
@@ -108,6 +113,20 @@ def _print_table(rows, header=True):
             print vdelim.join([justify(str(item),width) for (item,width) in zip(row,colWidths)])
             if header: print borderline; header=False
 
+def _traverse(summary, function, *args):
+    """Traverse all objects of a summary and call function with each as a
+    parameter.
+
+    Using this function, the following objects will be traversed:
+    - the summary
+    - each row
+    - each item of a row
+    """
+    function(summary, *args)
+    for row in summary:
+        function(row, *args)
+        for item in row:
+            function(item, *args)
 
 def _subtract(summary, o):
     """Remove o from the summary by subtracting it's size."""

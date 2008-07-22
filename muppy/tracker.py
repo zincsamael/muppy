@@ -77,12 +77,8 @@ class tracker(object):
             store_info(self.snapshots)
             for k, v in self.snapshots.items():
                 store_info(k)
-                store_info(v)
-                for row in v:
-                    store_info(row)
-                    for item in row:
-                        store_info(item)
-                        
+                summary._traverse(v, store_info)
+
             # do the snapshot
             res = summary.summarize(muppy.get_objects())
             # but also cleanup, otherwise the ref counting will be useless
@@ -113,13 +109,13 @@ class tracker(object):
         if snapshot2 is None:
             self.s1 = self._make_snapshot()
             if snapshot1 is None:
-                res = summary.get_summary_diff(self.s0, self.s1)
+                res = summary.get_diff(self.s0, self.s1)
             else:
-                res = summary.get_summary_diff(snapshot1, self.s1)
+                res = summary.get_diff(snapshot1, self.s1)
             self.s0 = self.s1
         else:
             if snapshot1 is not None:
-                res = summary.get_summary_diff(snapshot1, snapshot2)
+                res = summary.get_diff(snapshot1, snapshot2)
             else:
                 raise ValueError("You cannot provide snapshot2 without snapshot1.""")
         return summary._sweep(res)
@@ -132,7 +128,7 @@ class tracker(object):
         to the current snapshot is used. If snapshot1 and snapshot2 are
         provided, the diff between these two is used.
         """
-        summary.print_summary(self.diff(snapshot1=snapshot1, snapshot2=snapshot2))
+        summary.print_(self.diff(snapshot1=snapshot1, snapshot2=snapshot2))
 
     def store_snapshot(self, key):
         """Store a current snapshot in self.snapshots."""

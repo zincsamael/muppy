@@ -19,7 +19,6 @@ doc
 
 
 import gc
-import string
 import sys
 
 TPFLAGS_HAVE_GC = 1<<14
