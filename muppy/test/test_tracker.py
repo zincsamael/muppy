@@ -68,12 +68,94 @@ class TrackerTest(unittest.TestCase):
         # providing snapshot2 without snapshot1 should raise an exception
         self.assertRaises(ValueError, self.tracker.diff, snapshot2=sn2)
 
+    def _check_function_for_leak(self, function, *args):
+        """Test if more memory is used after the function has been called."""
+
+        tmp_tracker = tracker.tracker()
+        
+        def get_summary(function, *args):
+            gc.collect()
+#            o1 = muppy.get_objects()
+#            summary1 = muppy.summarize(o1)
+            summary1 = muppy.summarize(muppy.get_objects())
+#            gc.collect()
+#            function(*args)
+#            o1 = None
+            gc.collect()
+#            o2 = muppy.get_objects()
+#            summary2 = muppy.summarize(o2)
+            summary2 = muppy.summarize(muppy.get_objects())
+
+#            gc.collect()
+#            diff = muppy.get_diff(o1, o2)
+#            print len(diff['+'])
+#            for s in diff['+']:
+#                print s
+
+#            print
+#            print "len(o1)=%s" % len(o1)
+#            print "len(o2)=%s" % len(o2)
+#            for o in o2:
+#                if type(o) != str: continue
+#                found = False
+#                for p in o1:
+#                    if type(p) != str: continue
+#                    if o is p:
+#                        found = True
+#                if not found:
+#                    if sys.getsizeof(o) == 58:
+#                        print "not found: %s" % o
+#            print
+            
+            return (summary1, summary2)
+
+        # perform operation twice to handle objects possibly used in
+        # initialisation
+#        (summary1, summary2) = get_summary(function, *args)
+        (summary1, summary2) = get_summary(function, *args)
+
+        # ignore all objects used for the testing
+        ignore = []
+        ignore.append(summary1)
+        for row in summary1:
+            ignore.append(row)
+            for item in row:
+                # also ignore items of a row if they are referenced four times
+                # (by summary1, row, item, loop)
+                if len(gc.get_referrers(item)) == 4:
+                    ignore.append(item)
+        for o in ignore:
+            tmp_tracker._subtract(summary2, o)
+        tmp_tracker._subtract(summary2, '')
+
+        summary_diff = muppy.get_summary_diff(summary1, summary2)
+        summary_diff = tmp_tracker._sweep(summary_diff)
+        if len(summary_diff) != 0:
+            muppy.print_summary(summary_diff)
+        self.assertEqual(len(summary_diff), 0, \
+                         str(function) + " seems to leak")
+        
+    def test_for_leaks_in_tracker(self):
+        """Test if any operations of the tracker leak memory."""
+
+        # test _make_snapshot
+        tmp_tracker = tracker.tracker()
+#        self._check_function_for_leak(tmp_tracker._make_snapshot)
+#        self._check_function_for_leak(tmp_tracker.print_diff, [], [])
+#        self._check_function_for_leak(tmp_tracker.store_snapshot, 1)
+        
     def test_make_snapshot(self):
         """Check that a snapshot is created correctly.
+        
         This can only be done heuristically, e.g that most recent objects are
         included.
+        Also check that snapshots managed by the tracker are excluded if
+        ignore_self is enabled.
 
         """
+        
+        
+        
         expected = ['the', 'quick', 'brown', 'fox']
         
         
@@ -88,68 +170,6 @@ class TrackerTest(unittest.TestCase):
         """
         pass
 
-    def test_subtract(self):
-        """Check that a single object's data is correctly subtracted from a
-        summary.
-        - result in correct total size and total number of objects
-        - if object was not listed before, it should be listed negative
-          afterwards
-        """
-
-        objects = ['the', 'quick', 'brown', 'fox', 1298, 123, 234, [], {}]
-        summary = muppy.summarize(objects)
-        self.tracker._subtract(summary, 'the')
-        self.tracker._subtract(summary, {})
-        self.tracker._subtract(summary, (1,))
-        # to verify that these rows where actually included afterwards
-        checked_str = checked_dict = checked_tuple = False
-        for row in summary:
-            if row[0] == "<type 'str'>":
-                totalsize = sys.getsizeof('quick') + sys.getsizeof('brown') +\
-                            sys.getsizeof('fox')
-                self.assert_(row[1] == 3, "%s != %s" % (row[1], 3))
-                self.assert_(row[2] == totalsize, totalsize)
-                checked_str = True
-            if row[0] == "<type 'dict'>":
-                self.assert_(row[1] == 0)
-                self.assert_(row[2] == 0)
-                checked_dict = True
-            if row[0] == "<type 'tuple'>":
-                self.assert_(row[1] == -1)
-                self.assert_(row[2] == -sys.getsizeof((1,)))
-                checked_tuple = True
-
-        self.assert_(checked_str, "no str found in summary")
-        self.assert_(checked_dict, "no dict found in summary")
-        self.assert_(checked_tuple, "no tuple found in summary")
-
-        self.tracker._subtract(summary, 'quick')
-        self.tracker._subtract(summary, 'brown')
-        checked_str = False
-        for row in summary:
-            if row[0] == "<type 'str'>":
-                self.assert_(row[1] == 1)
-                self.assert_(row[2] == sys.getsizeof('fox'))
-                checked_str = True
-        self.assert_(checked_str, "no str found in summary")
-
-    def test_sweep(self):
-        """Check that all and only empty entries are removed from a summary."""
-        objects = ['the', 'quick', 'brown', 'fox', 1298, 123, 234, [], {}]
-        summary = muppy.summarize(objects)
-        self.tracker._subtract(summary, {})
-        self.tracker._subtract(summary, [])
-        summary = self.tracker._sweep(summary)
-        found_dict = found_tuple = False
-        for row in summary:
-            if row[0] == "<type 'dict'>":
-                found_dict = True
-            if row[0] == "<type 'tuple'>":
-                found_tuple = True
-        self.assert_(found_dict == False)
-        self.assert_(found_tuple == False)
-
-        
 def suite():
     suite = unittest.TestLoader().loadTestsFromTestCase(TrackerTestCase)
         

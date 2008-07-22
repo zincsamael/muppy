@@ -130,36 +130,6 @@ class MuppyTest(unittest.TestCase):
                  "The previous element appears to be larger than the " +\
                  "current: %s<%s" % (prev_o, objects[0]))
 
-    def test_summarize(self):
-        objects = [1, 'a', 'b', 'a', 5, [], {}]
-        expected = [[str(str), 3, 3*sys.getsizeof('a')],\
-                    [str(int), 2, 2*sys.getsizeof(1)],\
-                    [str(list), 1, sys.getsizeof([])],\
-                    [str(dict), 1, sys.getsizeof({})]]
-        res = muppy.summarize(objects)
-        for row_e in res:
-            self.assertTrue(row_e in expected)
-
-    def test_summary_diff(self):
-        left = [[str(str), 3, 3*sys.getsizeof('a')],\
-                [str(int), 2, 2*sys.getsizeof(1)],\
-                [str(list), 1, sys.getsizeof([])],\
-                [str(dict), 1, sys.getsizeof({})]]
-        right = [[str(str), 2, 2*sys.getsizeof('a')],\
-                 [str(int), 3, 3*sys.getsizeof(1)],\
-                 [str(list), 1, sys.getsizeof([1,2,3])],\
-                 [str(dict), 1, sys.getsizeof({})],
-                 [str(tuple), 1, sys.getsizeof((1,2))]]
-
-        expected = [[str(str), -1, -1*sys.getsizeof('a')],\
-                    [str(int), 1, +1*sys.getsizeof(1)],\
-                    [str(list), 0, sys.getsizeof([1,2,3]) - sys.getsizeof([])],\
-                    [str(dict), 0, 0],
-                    [str(tuple), 1, sys.getsizeof((1,2))]]
-        res = muppy.get_summary_diff(left, right)
-        for row_e in res:
-            self.assertTrue(row_e in expected)
-        
         
             
 test_print_table = """
@@ -182,7 +152,7 @@ test_print_summary = """
 >>> objects = [1,2,3,4,5L, 33000L, "a", "ab", "abc", [], {}, {10: "t"}, ]
 
 At first the default values.
->>> muppy.print_summary(objects)
+>>> summary.print_summary(objects)
           types |   # objects |   total size
 =============== | =========== | ============
   <type 'dict'> |           2 |          560
@@ -192,7 +162,7 @@ At first the default values.
   <type 'list'> |           1 |           40
 
 Next, we try it sorted by object number
->>> muppy.print_summary(objects, sort='#')
+>>> summary.print_summary(objects, sort='#')
           types |   # objects |   total size
 =============== | =========== | ============
    <type 'int'> |           4 |           96
@@ -202,7 +172,7 @@ Next, we try it sorted by object number
   <type 'list'> |           1 |           40
 
 Now, object number and with ascending order
->>> muppy.print_summary(objects, sort='#', order='ascending')
+>>> summary.print_summary(objects, sort='#', order='ascending')
           types |   # objects |   total size
 =============== | =========== | ============
   <type 'list'> |           1 |           40
@@ -212,14 +182,14 @@ Now, object number and with ascending order
    <type 'int'> |           4 |           96
 
 Let's limit the output to two rows
->>> muppy.print_summary(objects, limit=2, sort='#', order='ascending')
+>>> summary.print_summary(objects, limit=2, sort='#', order='ascending')
           types |   # objects |   total size
 =============== | =========== | ============
   <type 'list'> |           1 |           40
   <type 'long'> |           2 |           66
 
 Finally, sorted by size with descending order
->>> muppy.print_summary(objects, sort='size', order='descending')
+>>> summary.print_summary(objects, sort='size', order='descending')
           types |   # objects |   total size
 =============== | =========== | ============
   <type 'dict'> |           2 |          560
