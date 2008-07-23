@@ -1,3 +1,33 @@
+"""A collection of functions to summarize object information.
+
+This module provides several function which will help you to analyze object
+information which was gathered. Often it is sufficient to work with aggregated
+data instead of handling the entire set of existing objects. For example can a
+memory leak identified simple based on the number and size of existing objects.
+
+A summary contains information about objects in a table-like manner. Technically,
+it is a list of lists. Each of these lists represents a row, whereas the first
+column reflects the object type, the second column the number of objects, and
+the third column the size of all these objects. This allows a simple table-like
+output like the	following:
+
+=============  ============  =============
+       types     # objects     total size
+=============  ============  =============
+<type 'dict'>             2            560
+ <type 'str'>             3            126
+ <type 'int'>             4             96
+<type 'long'>             2             66
+<type 'list'>             1             40
+=============  ============  =============
+
+Another advantage of summaries is that they influence the system you analyze
+only to a minimum. Working with references to existing objects will keep these
+objects alive. Most of the times this is no desires behavior (as it will have
+an impact on the observations). Using summaries reduces this effect greatly.
+
+"""
+
 import string
 import sys
 

@@ -5,4 +5,7 @@ Tracker
 
 .. automodule:: tracker
 
-.. autoclass:: tracker
+   .. autoclass:: tracker
+ 
+..	.. automethod:: diff
+
