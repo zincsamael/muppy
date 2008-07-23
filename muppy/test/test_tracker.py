@@ -31,49 +31,6 @@ class TrackerTest(unittest.TestCase):
                 res = row[1]
         return res
         
-    def _check_function_for_leak(self, function, *args):
-        """Test if more memory is used after the function has been called."""
-
-        tmp_tracker = tracker.tracker()
-        
-        def get_summary(function, *args):
-            gc.collect()
-            summary1 = summary.summarize(muppy.get_objects())
-#            function(*args)
-            gc.collect()
-            summary2 = summary.summarize(muppy.get_objects())
-            return (summary1, summary2)
-
-        # perform operation twice to handle objects possibly used in
-        # initialisation
-        get_summary(function, *args)
-        (summary1, summary2) = get_summary(function, *args)
-
-        # ignore all objects used for the testing
-        ignore = []
-        if summary1 != summary2:
-            ignore.append(summary1)
-        for row in summary1:
-            gc.collect()
-            if len(gc.get_referrers(row)) == 2:
-                ignore.append(row)
-            for item in row:
-                # also ignore items of a row if they are referenced four times
-                # (by row and frame)
-                gc.collect()
-                if len(gc.get_referrers(item)) == 2:
-                    ignore.append(item)
-        for o in ignore:
-            summary2 = summary._subtract(summary2, o)
-
-        summary_diff = summary.get_diff(summary1, summary2)
-        summary_diff = summary._sweep(summary_diff)
-        if len(summary_diff) != 0:
-            print
-            summary.print_(summary_diff)
-        self.assertEqual(len(summary_diff), 0, \
-                         str(function) + " seems to leak")
-        
     def test_diff(self):
         """Check that the diff is computed correctly.
 
@@ -118,10 +75,10 @@ class TrackerTest(unittest.TestCase):
         # test _make_snapshot
         tmp_tracker = tracker.tracker()
         # XXX: TODO
-        self._check_function_for_leak(tmp_tracker._make_snapshot)
-#        self._check_function_for_leak(tmp_tracker.store_snapshot, 1)
+#        self.assert_(muppy.get_usage(tmp_tracker._make_snapshot) == None)
+#        self.assert_(muppy.get_usage(tmp_tracker.store_snapshot, 1) == None)
         # test print_diff
-#        self._check_function_for_leak(tmp_tracker.print_diff, [], [])
+#        self.assert_(muppy.get_usage(tmp_tracker.print_diff, [], []) == None)
         
     def test_make_snapshot(self):
         """Check that a snapshot is created correctly.
