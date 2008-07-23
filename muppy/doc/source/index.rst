@@ -1,20 +1,30 @@
-.. MUPPy documentation master file, created by sphinx-quickstart on Wed Jul 23 08:39:39 2008.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
-Welcome to MUPPy's documentation!
+Welcome to muppy's documentation!
 =================================
+
+Welcome to muppy, (yet another) memory usage profiler for Python.
+
+
+To Write
+========
+* currently only based on Python 2.6 sys.getsizeof
+* works with lists -> time intensive computations
+* working with weakrefs not suitable
+* the more snapshots you store, the longer a new snapshot will take, if
+  you have ignore_self enabled. So keep the number of stored snapshots
+  reasonable. 
+
+
 
 Contents:
 
 .. toctree::
-   :maxdepth: 3
-   :glob:
+   :maxdepth: 2
 
    intro
    remarks
    tutorial
    library/library
+   glossary
    copyright
 
 Indices and tables
