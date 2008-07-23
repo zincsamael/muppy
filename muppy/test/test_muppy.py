@@ -97,7 +97,7 @@ class MuppyTest(unittest.TestCase):
         for o in res:
             self.assert_((o in l0) or (o in l1) or (o in l2))
         
-    def test_getsize(self):
+    def test_get_size(self):
         """Check that the return value is the sum of the size of all objects."""
         (o1, o2, o3, o4, o5) = (1, 'a', 'b', 4, 5)
         list = [o1, o2, o3, o4, o5]
@@ -107,6 +107,40 @@ class MuppyTest(unittest.TestCase):
 
         self.assertEqual(muppy.get_size(list), expected)
 
+    def test_get_usage(self):
+        """Check that the return value reflects changes to the memory usage.
+
+        For functions which leave the memory unchanged a None should be
+        returned.
+
+        Parameters of the function should be forwarded correctly.
+        """
+        # we need to pull some tricks here, since parsing the code, static
+        # objects are already created, e.g. parsing "a = 'some text'" will
+        # already create a string object for 'some text'. So we compute the
+        # values to use dynamically.
+        
+        # check that no increase in memory usage returns None
+        def function(): pass
+        expected = None
+        # XXX: TODO
+#        res = muppy.get_usage(function)
+#        self.assertEqual(res, expected)
+        # passing of parameter should also work
+        def function(arg):
+            a = arg
+        expected = None
+        res = muppy.get_usage(function, 42)
+        self.assertEqual(res, expected)
+        # memory leaks should be indicated
+        def function():
+            try:
+                muppy.extra_var.append(1)
+            except AttributeError:
+                muppy.extra_var = []
+        res = muppy.get_usage(function)
+        self.assert_(res is not None)
+        
     def test_remove_duplicates(self):
         """Verify that this operations returns a duplicate-free lists. 
         
@@ -132,76 +166,6 @@ class MuppyTest(unittest.TestCase):
 
         
             
-test_print_table = """
-
-The _print_table function should print a nice, clean table.
-
->>> r1 = ["types", "#objects", "total size"]
->>> r2 = [str, 17, 442]
->>> r3 = [dict, 4, 9126]
->>> r4 = [list, 11, 781235]
->>> muppy._print_table([r1, r2, r3, r4])
-          types |   #objects |   total size
-=============== | ========== | ============
-   <type 'str'> |         17 |          442
-  <type 'dict'> |          4 |         9126
-  <type 'list'> |         11 |       781235
-"""
-  
-test_print_summary = """
->>> objects = [1,2,3,4,5L, 33000L, "a", "ab", "abc", [], {}, {10: "t"}, ]
-
-At first the default values.
->>> summary.print_summary(objects)
-          types |   # objects |   total size
-=============== | =========== | ============
-  <type 'dict'> |           2 |          560
-   <type 'str'> |           3 |          126
-   <type 'int'> |           4 |           96
-  <type 'long'> |           2 |           66
-  <type 'list'> |           1 |           40
-
-Next, we try it sorted by object number
->>> summary.print_summary(objects, sort='#')
-          types |   # objects |   total size
-=============== | =========== | ============
-   <type 'int'> |           4 |           96
-   <type 'str'> |           3 |          126
-  <type 'long'> |           2 |           66
-  <type 'dict'> |           2 |          560
-  <type 'list'> |           1 |           40
-
-Now, object number and with ascending order
->>> summary.print_summary(objects, sort='#', order='ascending')
-          types |   # objects |   total size
-=============== | =========== | ============
-  <type 'list'> |           1 |           40
-  <type 'long'> |           2 |           66
-  <type 'dict'> |           2 |          560
-   <type 'str'> |           3 |          126
-   <type 'int'> |           4 |           96
-
-Let's limit the output to two rows
->>> summary.print_summary(objects, limit=2, sort='#', order='ascending')
-          types |   # objects |   total size
-=============== | =========== | ============
-  <type 'list'> |           1 |           40
-  <type 'long'> |           2 |           66
-
-Finally, sorted by size with descending order
->>> summary.print_summary(objects, sort='size', order='descending')
-          types |   # objects |   total size
-=============== | =========== | ============
-  <type 'dict'> |           2 |          560
-   <type 'str'> |           3 |          126
-   <type 'int'> |           4 |           96
-  <type 'long'> |           2 |           66
-  <type 'list'> |           1 |           40
-"""
-      
-#__test__ = {"test_print_table": test_print_table,\
-#            "test_print_summary": test_print_summary}
-
 def suite():
     suite = unittest.makeSuite(MuppyTest,'test') 
     suite.addTest(doctest.DocTestSuite())
