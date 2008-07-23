@@ -4,8 +4,9 @@ import sys
 def summarize(objects):
     """Summarize an objects list.
 
-    Return a list of lists, where each row consists of
-    [str(type), number of objects of this type, total size of these objects].
+    Return a list of lists, whereas each row consists of::
+      [str(type), number of objects of this type, total size of these objects].
+
     No guarantee regarding the order is given.
 
     """
@@ -26,7 +27,7 @@ def summarize(objects):
 def get_diff(left, right):
     """Get the difference of two summaries.
 
-    Subtracts the values of the left summary from the values of the right
+    Subtracts the values of the right summary from the values of the left
     summary.
     If similar rows appear on both sides, the are included in the summary with
     0 for number of elements and total size.
@@ -129,7 +130,7 @@ def _traverse(summary, function, *args):
             function(item, *args)
 
 def _subtract(summary, o):
-    """Remove o from the summary by subtracting it's size."""
+    """Remove object o from the summary by subtracting it's size."""
     found = False
     row = [str(type(o)), 1, sys.getsizeof(o)]
     for r in summary:
