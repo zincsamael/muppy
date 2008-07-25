@@ -184,12 +184,6 @@ def get_usage(function, *args):
         res = tmp
     return res
     
-    
-#        print
-#        summary.print_(summary_diff)
-#    self.assertEqual(len(summary_diff), 0, \
-#                         str(function) + " seems to leak")
-        
 def _remove_duplicates(objects):
     """Remove duplicate objects.
 
