@@ -1,3 +1,4 @@
+import doctest
 import unittest
 import sys
 
@@ -6,15 +7,22 @@ from muppy import summary
 
 class SummaryTest(unittest.TestCase):
 
+    def test_repr(self):
+        """Check that the right representation is returned. """
+        self.assert_(summary._repr(''), "<type 'str'>")
+        self.assert_(summary._repr('', 1), "<type 'str'>")
+        self.assert_(summary._repr('', verbosity=1), "<type 'str'>")
+        self.assert_(summary._repr('', verbosity=100), "<type 'str'>")
+
     def test_summarize(self):
         objects = [1, 'a', 'b', 'a', 5, [], {}]
-        expected = [[str(str), 3, 3*sys.getsizeof('a')],\
-                    [str(int), 2, 2*sys.getsizeof(1)],\
-                    [str(list), 1, sys.getsizeof([])],\
-                    [str(dict), 1, sys.getsizeof({})]]
+        expected = [[summary._repr(''), 3, 3*sys.getsizeof('a')],\
+                    [summary._repr(1), 2, 2*sys.getsizeof(1)],\
+                    [summary._repr([]), 1, sys.getsizeof([])],\
+                    [summary._repr({}), 1, sys.getsizeof({})]]
         res = summary.summarize(objects)
         for row_e in res:
-            self.assertTrue(row_e in expected)
+            self.assert_(row_e in expected)
 
     def test_summary_diff(self):
         left = [[str(str), 3, 3*sys.getsizeof('a')],\
@@ -53,17 +61,17 @@ class SummaryTest(unittest.TestCase):
         # to verify that these rows where actually included afterwards
         checked_str = checked_dict = checked_tuple = False
         for row in summ:
-            if row[0] == "<type 'str'>":
+            if row[0] == summary._repr(''):
                 totalsize = sys.getsizeof('quick') + sys.getsizeof('brown') +\
                             sys.getsizeof('fox')
                 self.assert_(row[1] == 3, "%s != %s" % (row[1], 3))
                 self.assert_(row[2] == totalsize, totalsize)
                 checked_str = True
-            if row[0] == "<type 'dict'>":
+            if row[0] == summary._repr({}):
                 self.assert_(row[1] == 0)
                 self.assert_(row[2] == 0)
                 checked_dict = True
-            if row[0] == "<type 'tuple'>":
+            if row[0] == summary._repr((1,)):
                 self.assert_(row[1] == -1)
                 self.assert_(row[2] == -sys.getsizeof((1,)))
                 checked_tuple = True
@@ -76,7 +84,7 @@ class SummaryTest(unittest.TestCase):
         summary._subtract(summ, 'brown')
         checked_str = False
         for row in summ:
-            if row[0] == "<type 'str'>":
+            if row[0] == summary._repr(''):
                 self.assert_(row[1] == 1)
                 self.assert_(row[2] == sys.getsizeof('fox'))
                 checked_str = True
@@ -108,7 +116,7 @@ class SummaryTest(unittest.TestCase):
         summ = summary._sweep(summ)
         found_string = False
         for row in summ:
-            if row[0] == "<type 'str'>":
+            if row[0] == summary._repr(''):
                 found_string = True
                 self.assert_(row[1] == 0)
                 totalsize = sys.getsizeof('fox') - sys.getsizeof('42')
@@ -208,4 +216,4 @@ def suite():
     return suite
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest.TextTestRunner(verbosity=2).run(suite())

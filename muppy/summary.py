@@ -28,8 +28,10 @@ an impact on the observations). Using summaries reduces this effect greatly.
 
 """
 
+import re
 import string
 import sys
+import types
 
 def summarize(objects):
     """Summarize an objects list.
@@ -40,18 +42,19 @@ def summarize(objects):
     No guarantee regarding the order is given.
 
     """
-    summary = {}
+    count = {}
+    total_size = {}
     for o in objects:
-        otype = str(type(o))
-        if otype in summary:
-            summary[otype].append(sys.getsizeof(o))
+        otype = _repr(o)
+        if otype in count:
+            count[otype] += 1
+            total_size[otype] += sys.getsizeof(o)
         else:
-            summary[otype] = []
-            summary[otype].append(sys.getsizeof(o))
-    # build rows
+            count[otype] = 1
+            total_size[otype] = sys.getsizeof(o)
     rows = []
-    for otype, sizes in summary.items():
-        rows.append([otype, len(sizes), sum(sizes)])
+    for otype in count:
+        rows.append([otype, count[otype], total_size[otype]])
     return rows
 
 def get_diff(left, right):
@@ -103,9 +106,9 @@ def print_(rows, limit=15, sort='size', order='descending'):
     # sort rows
     if sortby.index(sort) == 0:
         if order == "ascending":
-            rows.sort(lambda r1, r2: cmp(str(r1[0]),str(r2[0])))
+            rows.sort(lambda r1, r2: cmp(_repr(r1[0]),_repr(r2[0])))
         elif order == "descending":
-            rows.sort(lambda r1, r2: -cmp(str(r1[0]),str(r2[0])))
+            rows.sort(lambda r1, r2: -cmp(_repr(r1[0]),_repr(r2[0])))
     else: 
         if order == "ascending":
             rows.sort(lambda r1, r2: r1[sortby.index(sort)] - r2[sortby.index(sort)])
@@ -118,32 +121,99 @@ def print_(rows, limit=15, sort='size', order='descending'):
     _print_table(rows)
 
 def _print_table(rows, header=True):
-        """Print a list of lists as a pretty table.
+    """Print a list of lists as a pretty table.
+    
+    Keyword arguments:
+    header -- if True the first row is treated as a table header
+    
+    inspired by http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/267662
+    """
+    border="="
+    # vertical delimiter
+    vdelim = " | "
+    # padding nr. of spaces are left around the longest element in the
+    # column
+    padding=1
+    # may be left,center,right
+    justify='right'
+    justify = {'left':string.ljust,'center':string.center,\
+                   'right':string.rjust}[justify.lower()]
+    # calculate column widths (longest item in each col
+    # plus "padding" nr of spaces on both sides)
+    cols = zip(*rows)
+    colWidths = [max([len(str(item))+2*padding for item in col]) for col in cols]
+    borderline = vdelim.join([w*border for w in colWidths])
+    for row in rows: 
+        print vdelim.join([justify(str(item),width) for (item,width) in zip(row,colWidths)])
+        if header: print borderline; header=False
 
-        Keyword arguments:
-        header -- if True the first row is treated as a table header
+def _repr(o, verbosity=1):
+    """Get meaning object representation.
 
-        inspired by http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/267662
-        """
-        border="="
-        # vertical delimiter
-        vdelim = " | "
-        # padding nr. of spaces are left around the longest element in the
-        # column
-        padding=1
-        # may be left,center,right
-        justify='right'
-        justify = {'left':string.ljust,'center':string.center,\
-                       'right':string.rjust}[justify.lower()]
-        # calculate column widths (longest item in each col
-        # plus "padding" nr of spaces on both sides)
-        cols = zip(*rows)
-        colWidths = [max([len(str(item))+2*padding for item in col]) for col in cols]
-        borderline = vdelim.join([w*border for w in colWidths])
-        for row in rows: 
-            print vdelim.join([justify(str(item),width) for (item,width) in zip(row,colWidths)])
-            if header: print borderline; header=False
+    This function should be used when the simple str(o) output would result in
+    too general data. E.g. "<type 'instance'" is less meaningful than
+    "instance: Foo".
 
+    Keyword arguments:
+    verbosity -- if True the first row is treated as a table header
+
+    """
+    # Following are various outputs for different types which may be
+    # interesting during memory profiling.
+    # The later they appear in a list, the higher the verbosity should be.
+    
+    # Because some computations are done with the rows of summaries, these rows
+    # have to remain comparable. Therefore information which reflect an objects
+    # state, e.g. the current line number of a frame, should not be returned
+
+    # regular expressions replaced in return value
+    type_prefix = re.compile(r"^<type '")
+    address = re.compile(r' at 0x[0-9a-f]+')
+    type_suffix = re.compile(r"'>$")
+
+    frame = [
+        lambda f: "frame (codename: %s)" %\
+                   (f.f_code.co_name),
+        lambda f: "frame (codename: %s, codeline: %s)" %\
+                   (f.f_code.co_name, f.f_code.co_firstlineno),
+        lambda f: "frame (codename: %s, filename: %s, codeline: %s)" %\
+                   (f.f_code.co_name, f.f_code.co_filename,\
+                    f.f_code.co_firstlineno)
+    ]
+    instance = [
+        lambda x: "instance(%s)" %\
+                                  (repr(o.__class__)),
+    ]
+    instancemethod = [
+        lambda x: "instancemethod (%s)" %\
+                                  (repr(x.im_func)),
+        lambda x: "instancemethod (%s, %s)" %\
+                                  (repr(x.im_class), repr(x.im_func)),
+    ]
+    
+    representations = {
+        types.FrameType: frame,
+        types.MethodType: instancemethod,
+        types.InstanceType: instance
+    }
+
+    res = ""
+    
+    t = type(o)
+    if (verbosity == 0) or (t not in representations):
+        res = str(t)
+    else:
+        verbosity -= 1
+        if len(representations[t]) < verbosity:
+            verbosity = len(representations[t]) - 1
+        res = representations[t][verbosity](o)
+
+    res = address.sub('', res)
+    res = type_prefix.sub('', res)
+    res = type_suffix.sub('', res)
+        
+    return res
+            
 def _traverse(summary, function, *args):
     """Traverse all objects of a summary and call function with each as a
     parameter.
@@ -162,7 +232,7 @@ def _traverse(summary, function, *args):
 def _subtract(summary, o):
     """Remove object o from the summary by subtracting it's size."""
     found = False
-    row = [str(type(o)), 1, sys.getsizeof(o)]
+    row = [_repr(o), 1, sys.getsizeof(o)]
     for r in summary:
         if r[0] == row[0]:
             (r[1], r[2]) = (r[1] - row[1], r[2] - row[2])
