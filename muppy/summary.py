@@ -33,6 +33,8 @@ import string
 import sys
 import types
 
+import muppy
+
 def summarize(objects):
     """Summarize an objects list.
 

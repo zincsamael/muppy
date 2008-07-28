@@ -2,7 +2,6 @@ import gc
 import sys
 import unittest
 
-from muppy import muppy
 from muppy import summary
 from muppy import tracker
 
@@ -105,6 +104,7 @@ class TrackerTest(unittest.TestCase):
         sn = tmp_tracker._make_snapshot()
         sn2 = tmp_tracker._make_snapshot()
         tmp = summary._sweep(summary.get_diff(sn, sn2))
+        print tmp
         self.assert_(len(tmp) == 0)
         # but with ignore_self turned off, there should be some difference
         tmp_tracker = tracker.tracker(ignore_self=False)
@@ -129,10 +129,10 @@ class TrackerTest(unittest.TestCase):
         s = self.tracker.snapshots[key]
         self.assert_(self._contains_indicator(s) == 1)
 
+       
 def suite():
-    suite = unittest.TestLoader().loadTestsFromTestCase(TrackerTestCase)
-        
-if __name__ == '__main__':
-    unittest.main()
+    return unittest.TestLoader().loadTestsFromTestCase(TrackerTest)
 
-        
+if __name__ == '__main__':
+    unittest.TextTestRunner(verbosity=2).run(suite())
+

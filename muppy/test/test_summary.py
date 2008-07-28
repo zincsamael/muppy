@@ -2,7 +2,7 @@ import doctest
 import unittest
 import sys
 
-from muppy import muppy
+import muppy
 from muppy import summary
 
 class SummaryTest(unittest.TestCase):

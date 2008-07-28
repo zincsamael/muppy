@@ -4,7 +4,7 @@ from copy import copy
 import gc
 import inspect
 
-from muppy import summary
+import summary
 
 class Node(object):
     """A node as it is used in the tree structure.

@@ -3,7 +3,7 @@ import random
 import sys
 import unittest
 
-from muppy import muppy
+import muppy
 
 class MuppyTest(unittest.TestCase):
 
@@ -121,25 +121,31 @@ class MuppyTest(unittest.TestCase):
         # values to use dynamically.
         
         # check that no increase in memory usage returns None
+        a = 1
+        b = 2
+        c = 3
+        d = 4
+        e = 1
         def function(): pass
         expected = None
         # XXX: TODO
-#        res = muppy.get_usage(function)
+        res = muppy.get_usage(function)
+        print res
 #        self.assertEqual(res, expected)
         # passing of parameter should also work
-        def function(arg):
-            a = arg
-        expected = None
-        res = muppy.get_usage(function, 42)
-        self.assertEqual(res, expected)
-        # memory leaks should be indicated
-        def function():
-            try:
-                muppy.extra_var.append(1)
-            except AttributeError:
-                muppy.extra_var = []
-        res = muppy.get_usage(function)
-        self.assert_(res is not None)
+#        def function(arg):
+#            a = arg
+#        expected = None
+#        res = muppy.get_usage(function, 42)
+#        self.assertEqual(res, expected)
+#        # memory leaks should be indicated
+#        def function():
+#            try:
+#                muppy.extra_var.append(1)
+#            except AttributeError:
+#                muppy.extra_var = []
+#        res = muppy.get_usage(function)
+#        self.assert_(res is not None)
         
     def test_remove_duplicates(self):
         """Verify that this operations returns a duplicate-free lists. 
@@ -172,4 +178,4 @@ def suite():
     return suite
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest.TextTestRunner(verbosity=2).run(suite())
