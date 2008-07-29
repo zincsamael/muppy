@@ -4,6 +4,7 @@ import sys
 import unittest
 
 import muppy
+import muppy.muppy
 
 class MuppyTest(unittest.TestCase):
 
@@ -149,14 +150,14 @@ class MuppyTest(unittest.TestCase):
 
     def test_is_containerobject(self):
         """Check that (non-)container objects are identified correctly."""
-        self.assertTrue(muppy._is_containerobject([]))
-        self.assertTrue(muppy._is_containerobject((1,)))
-        self.assertTrue(muppy._is_containerobject({}))
-        self.assertTrue(muppy._is_containerobject(int))
-        self.assertTrue(muppy._is_containerobject(type))
+        self.assertTrue(muppy.muppy._is_containerobject([]))
+        self.assertTrue(muppy.muppy._is_containerobject((1,)))
+        self.assertTrue(muppy.muppy._is_containerobject({}))
+        self.assertTrue(muppy.muppy._is_containerobject(int))
+        self.assertTrue(muppy.muppy._is_containerobject(type))
 
-        self.assertFalse(muppy._is_containerobject(1))
-        self.assertFalse(muppy._is_containerobject(''))
+        self.assertFalse(muppy.muppy._is_containerobject(1))
+        self.assertFalse(muppy.muppy._is_containerobject(''))
         
     def test_remove_duplicates(self):
         """Verify that this operations returns a duplicate-free lists. 
@@ -166,7 +167,7 @@ class MuppyTest(unittest.TestCase):
         (o1, o2, o3, o4, o5) = (1, 'a', 'b', 'a', 5)
         objects = [o1, o2, o3, o4, o5, o5, o4, o3, o2, o1]
         expected = set(objects)
-        res = muppy._remove_duplicates(objects)
+        res = muppy.muppy._remove_duplicates(objects)
         self.assertEqual(len(expected), len(res))
         for o in res:
             self.assert_(o in expected)
