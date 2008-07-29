@@ -27,9 +27,13 @@ def get_objects(remove_dups=True):
     res = []
     tmp = gc.get_objects()
     for o in tmp:
+        # gc.get_objects returns only container objects, but we also want
+        # the objects referenced by them
         refs = get_referents(o)
         for ref in refs:
-            if (type).__flags__ & TPFLAGS_HAVE_GC:
+            if not _is_containerobject(ref):
+                # we already got the container objects, now we only add
+                # non-container objects
                 res.append(ref)
     res.extend(tmp)
     if remove_dups:
@@ -185,7 +189,14 @@ def get_usage(function, *args):
     if len(tmp) != 0:
         res = tmp
     return res
-    
+
+def _is_containerobject(o):
+    """Is the passed object a container object."""
+    if type(o).__flags__ & TPFLAGS_HAVE_GC == 0:
+        return False
+    else:
+        return True
+
 def _remove_duplicates(objects):
     """Remove duplicate objects.
 

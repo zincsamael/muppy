@@ -146,6 +146,17 @@ class MuppyTest(unittest.TestCase):
 #                muppy.extra_var = []
 #        res = muppy.get_usage(function)
 #        self.assert_(res is not None)
+
+    def test_is_containerobject(self):
+        """Check that (non-)container objects are identified correctly."""
+        self.assertTrue(muppy._is_containerobject([]))
+        self.assertTrue(muppy._is_containerobject((1,)))
+        self.assertTrue(muppy._is_containerobject({}))
+        self.assertTrue(muppy._is_containerobject(int))
+        self.assertTrue(muppy._is_containerobject(type))
+
+        self.assertFalse(muppy._is_containerobject(1))
+        self.assertFalse(muppy._is_containerobject(''))
         
     def test_remove_duplicates(self):
         """Verify that this operations returns a duplicate-free lists. 
