@@ -1,10 +1,32 @@
-import unittest
 import doctest
+import unittest
+import test.test_support
 
 from muppy import tree
 
 class TreeTest(unittest.TestCase):
 
+    # sample tree used in output tests
+    sample_tree = None
+    
+    def setUp(self):
+        # set up a sample tree with three children, each having
+        # five string leaves and some have references to other children
+        TreeTest.sample_tree = tree.Node('root')
+        branch1 = tree.Node('branch1')
+        TreeTest.sample_tree.children.append(branch1)
+        branch2 = tree.Node('branch2')
+        TreeTest.sample_tree.children.append(branch2)
+        branch3 = tree.Node('branch3')
+        TreeTest.sample_tree.children.append(branch3)
+        branch2.children.append(branch3)
+        branch3.children.append(branch1)
+        for i in ['a','b','c','d','e']:
+            branch1.children.append(i)
+            branch2.children.append(i)
+            branch3.children.append(i)
+        
+    
     def test_node(self):
         """Check node functionality.
 
@@ -62,33 +84,21 @@ class TreeTest(unittest.TestCase):
         res = tree.get_referrers_tree(root, str_func=foo, repeat=True)
         self.assert_(str(res) == expected)
 
-test_print_tree = """
-At first we need to set up a sample tree with three children, each having
-five string leaves and some have references to other children
+    def test_print_tree(self):
+        """Check if tree is written to file correctly."""
 
->>> root = tree.Node('root')
->>> branch1 = tree.Node('branch1')
->>> root.children.append(branch1)
->>> branch2 = tree.Node('branch2')
->>> root.children.append(branch2)
->>> branch3 = tree.Node('branch3')
->>> root.children.append(branch3)
->>> branch2.children.append(branch3)
->>> branch3.children.append(branch1)
->>> for i in ['a','b','c','d','e']:
-...     branch1.children.append(i)
-...     branch2.children.append(i)
-...     branch3.children.append(i)
+        
+        
+test_print_tree = """
 
 let's start with a small tree first
-
->>> tree.print_tree(root, 1)
+>>> tree.print_tree(TreeTest.sample_tree, 1)
 root-+-branch1
      +-branch2
      +-branch3
 
 okay, next level
->>> tree.print_tree(root, 2)
+>>> tree.print_tree(TreeTest.sample_tree, 2)
 root-+-branch1-+-a
      |         +-b
      |         +-c
@@ -111,7 +121,7 @@ root-+-branch1-+-a
 
 and now full size
 
->>> tree.print_tree(root)
+>>> tree.print_tree(TreeTest.sample_tree)
 root-+-branch1-+-a
      |         +-b
      |         +-c
