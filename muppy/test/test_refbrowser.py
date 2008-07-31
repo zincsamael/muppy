@@ -2,7 +2,7 @@ import doctest
 import unittest
 import test.test_support
 
-from muppy import tree
+from muppy import refbrowser
 
 class TreeTest(unittest.TestCase):
 
@@ -12,12 +12,12 @@ class TreeTest(unittest.TestCase):
     def setUp(self):
         # set up a sample tree with three children, each having
         # five string leaves and some have references to other children
-        TreeTest.sample_tree = tree.Node('root')
-        branch1 = tree.Node('branch1')
+        TreeTest.sample_tree = refbrowser.Node('root')
+        branch1 = refbrowser.Node('branch1')
         TreeTest.sample_tree.children.append(branch1)
-        branch2 = tree.Node('branch2')
+        branch2 = refbrowser.Node('branch2')
         TreeTest.sample_tree.children.append(branch2)
-        branch3 = tree.Node('branch3')
+        branch3 = refbrowser.Node('branch3')
         TreeTest.sample_tree.children.append(branch3)
         branch2.children.append(branch3)
         branch3.children.append(branch1)
@@ -35,13 +35,13 @@ class TreeTest(unittest.TestCase):
 
         """
         # default representation
-        n = tree.Node(1)
+        n = refbrowser.Node(1)
         expected = str(1)
         self.assert_(str(n) == expected)
         # custom representation
         expected = 'the quick brown fox'
         def foo(o): return expected
-        n = tree.Node(1, foo)
+        n = refbrowser.Node(1, foo)
         self.assert_(str(n) == expected)
         # attach child
         n.children.append(2)
@@ -56,32 +56,32 @@ class TreeTest(unittest.TestCase):
         ref2 = {1: root}
         ref22 = {1: ref2}
 
-        res = tree.get_referrers_tree(root)
+        res = refbrowser.get_referrers_tree(root)
         # note that ref11 should not be included due to the repeat argument
         refs = [ref1, ref2]
-        children = [c.o for c in res.children if isinstance(c, tree.Node)]
+        children = [c.o for c in res.children if isinstance(c, refbrowser.Node)]
         for r in refs:
             self.assert_(r in children)
         self.assert_(ref11 not in children)
         # now we test the repeat argument
-        res = tree.get_referrers_tree(root, repeat=True)
+        res = refbrowser.get_referrers_tree(root, repeat=True)
         refs = [ref1, ref11, ref2]
-        children = [c.o for c in res.children if isinstance(c, tree.Node)]
+        children = [c.o for c in res.children if isinstance(c, refbrowser.Node)]
         for r in refs:
             self.assert_(r in children)
         # test if maxdepth is working
-        res = tree.get_referrers_tree(root, maxdepth=0)
+        res = refbrowser.get_referrers_tree(root, maxdepth=0)
         self.assert_(len(res.children) == 0)
-        res = tree.get_referrers_tree(root, maxdepth=1)
+        res = refbrowser.get_referrers_tree(root, maxdepth=1)
         for c in res.children:
             if c == ref1:
                 self.assert_(len(c.children) == 0)
         # test if the str_func is applied correctly
         expected = 'the quick brown fox'
         def foo(o): return expected
-        res = tree.get_referrers_tree(root, str_func=foo)
+        res = refbrowser.get_referrers_tree(root, str_func=foo)
         self.assert_(str(res) == expected)
-        res = tree.get_referrers_tree(root, str_func=foo, repeat=True)
+        res = refbrowser.get_referrers_tree(root, str_func=foo, repeat=True)
         self.assert_(str(res) == expected)
 
     def test_print_tree(self):
@@ -92,13 +92,13 @@ class TreeTest(unittest.TestCase):
 test_print_tree = """
 
 let's start with a small tree first
->>> tree.print_tree(TreeTest.sample_tree, 1)
+>>> refbrowser.print_tree(TreeTest.sample_tree, 1)
 root-+-branch1
      +-branch2
      +-branch3
 
 okay, next level
->>> tree.print_tree(TreeTest.sample_tree, 2)
+>>> refbrowser.print_tree(TreeTest.sample_tree, 2)
 root-+-branch1-+-a
      |         +-b
      |         +-c
@@ -121,7 +121,7 @@ root-+-branch1-+-a
 
 and now full size
 
->>> tree.print_tree(TreeTest.sample_tree)
+>>> refbrowser.print_tree(TreeTest.sample_tree)
 root-+-branch1-+-a
      |         +-b
      |         +-c
