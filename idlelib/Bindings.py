@@ -75,6 +75,7 @@ menudefs = [
  ('mprof', [
    ('Print _Snapshot', '<<print-memory-snapshot>>'),
    ('Print _Diff', '<<print-memory-diff>>'),
+   ('Show _Referrers Browser', '<<ref-browser>>'),
    None,
    ]),
  ('help', [

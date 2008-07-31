@@ -22,7 +22,7 @@ except ImportError:
     print>>sys.__stderr__, "** IDLE can't import Tkinter.  " \
                            "Your Python may not be configured for Tk. **"
     sys.exit(1)
-import tkMessageBox
+    import tkMessageBox
 
 from EditorWindow import EditorWindow, fixwordbreaks
 from FileList import FileList
@@ -37,7 +37,10 @@ import Debugger
 import RemoteDebugger
 
 import gc
-from muppy import muppy
+import muppy
+from muppy import tracker
+from muppy import refbrowser
+from muppy import summary
 
 IDENTCHARS = string.ascii_letters + string.digits + "_"
 LOCALHOST = '127.0.0.1'
@@ -58,18 +61,18 @@ try:
 except ImportError:
     pass
 else:
-    def idle_showwarning(message, category, filename, lineno):
+    def idle_showwarning(message, category, filename, lineno, file=None, line=None):
         file = warning_stream
         try:
-            file.write(warnings.formatwarning(message, category, filename, lineno))
+            file.write(warnings.formatwarning(message, category, filename, lineno, file=file, line=line))
         except IOError:
             pass  ## file (probably __stderr__) is invalid, warning dropped.
     warnings.showwarning = idle_showwarning
-    def idle_formatwarning(message, category, filename, lineno):
+    def idle_formatwarning(message, category, filename, lineno, file=None, line=None):
         """Format warnings the IDLE way"""
         s = "\nWarning (from warnings module):\n"
         s += '  File \"%s\", line %s\n' % (filename, lineno)
-        line = linecache.getline(filename, lineno).strip()
+        line = linecache.getline(filename, lineno)
         if line:
             s += "    %s\n" % line
         s += "%s: %s\n>>> " % (category.__name__, message)
@@ -836,6 +839,7 @@ class PyShell(OutputWindow):
         text.bind("<<toggle-jit-stack-viewer>>", self.toggle_jit_stack_viewer)
         text.bind("<<print-memory-snapshot>>", self.memory_snapshot)
         text.bind("<<print-memory-diff>>", self.memory_diff)
+        text.bind("<<ref-browser>>", self.ref_browser)
         if use_subprocess:
             text.bind("<<view-restart>>", self.view_restart_mark)
             text.bind("<<restart-shell>>", self.restart_shell)
@@ -856,7 +860,7 @@ class PyShell(OutputWindow):
         #
         self.pollinterval = 50  # millisec
         # memory profiling
-        self.memory_monitor = muppy.monitor()
+        self.memory_tracker = tracker.tracker()
 
     def get_standard_extension_names(self):
         return idleConf.GetExtensions(shell_only=True)
@@ -1239,14 +1243,32 @@ class PyShell(OutputWindow):
     def memory_snapshot(self, s):
         gc.collect()
         print
-        muppy.print_summary(muppy.get_objects())
+        objects = muppy.get_objects()
+        summary.print_(summary.summarize(objects))
         
     def memory_diff(self, s):
-        print
         gc.collect()
-        self.memory_monitor.print_diff()
-        
-        
+        self.memory_tracker.print_diff()
+
+    def compute_diff(self):
+        import types
+        o1 = muppy.filter(self.o1, Type=str)
+        o2 = muppy.filter(self.o0, Type=str)
+        diff = muppy.get_diff(o1, o2)
+        for d in diff['+']:
+            print "+d=%s" % d
+            print 
+
+    def ref_browser(self, s):
+        from WindowList import ListedToplevel
+        from TreeWidget import TreeNode, ScrolledCanvas
+        gc.collect()
+        objects = gc.get_objects()
+        for o in objects:
+            if isinstance(o, ListedToplevel):
+                browser = refbrowser.InteractiveBrowser(o)
+                browser.main()
+
 class PseudoFile(object):
 
     def __init__(self, shell, tags, encoding=None):
