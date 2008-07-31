@@ -12,12 +12,12 @@ class TreeTest(unittest.TestCase):
     def setUp(self):
         # set up a sample tree with three children, each having
         # five string leaves and some have references to other children
-        TreeTest.sample_tree = refbrowser.Node('root')
-        branch1 = refbrowser.Node('branch1')
+        TreeTest.sample_tree = refbrowser._Node('root')
+        branch1 = refbrowser._Node('branch1')
         TreeTest.sample_tree.children.append(branch1)
-        branch2 = refbrowser.Node('branch2')
+        branch2 = refbrowser._Node('branch2')
         TreeTest.sample_tree.children.append(branch2)
-        branch3 = refbrowser.Node('branch3')
+        branch3 = refbrowser._Node('branch3')
         TreeTest.sample_tree.children.append(branch3)
         branch2.children.append(branch3)
         branch3.children.append(branch1)
@@ -29,18 +29,18 @@ class TreeTest(unittest.TestCase):
     def test_node(self):
         """Check node functionality.
 
-        Nodes can be created, linked to each other, and the output function
+        _Nodes can be created, linked to each other, and the output function
         should return the expected result.
 
         """
         # default representation
-        n = refbrowser.Node(1)
+        n = refbrowser._Node(1)
         expected = str(1)
         self.assert_(str(n) == expected)
         # custom representation
         expected = 'the quick brown fox'
         def foo(o): return expected
-        n = refbrowser.Node(1, foo)
+        n = refbrowser._Node(1, foo)
         self.assert_(str(n) == expected)
         # attach child
         n.children.append(2)
@@ -55,48 +55,48 @@ class TreeTest(unittest.TestCase):
         ref2 = {1: root}
         ref22 = {1: ref2}
 
-        res = refbrowser.ReferrersTree(root).get_tree()
+        res = refbrowser.RefBrowser(root, repeat=False).get_tree()
         # note that ref11 should not be included due to the repeat argument
         refs = [ref1, ref2]
-        children = [c.o for c in res.children if isinstance(c, refbrowser.Node)]
+        children = [c.o for c in res.children if isinstance(c, refbrowser._Node)]
         for r in refs:
             if r not in children:
                 print r
             self.assert_(r in children)
         self.assert_(ref11 not in children)
         # now we test the repeat argument
-        res = refbrowser.ReferrersTree(root, repeat=True).get_tree()
+        res = refbrowser.RefBrowser(root, repeat=True).get_tree()
         refs = [ref1, ref11, ref2]
-        children = [c.o for c in res.children if isinstance(c, refbrowser.Node)]
+        children = [c.o for c in res.children if isinstance(c, refbrowser._Node)]
         for r in refs:
             self.assert_(r in children)
         # test if maxdepth is working
-        res = refbrowser.ReferrersTree(root, maxdepth=0).get_tree()
+        res = refbrowser.RefBrowser(root, maxdepth=0).get_tree()
         self.assert_(len(res.children) == 0)
-        res = refbrowser.ReferrersTree(root, maxdepth=1).get_tree()
+        res = refbrowser.RefBrowser(root, maxdepth=1).get_tree()
         for c in res.children:
             if c == ref1:
                 self.assert_(len(c.children) == 0)
         # test if the str_func is applied correctly
         expected = 'the quick brown fox'
         def foo(o): return expected
-        res = refbrowser.ReferrersTree(root, str_func=foo).get_tree()
+        res = refbrowser.RefBrowser(root, str_func=foo).get_tree()
         self.assert_(str(res) == expected)
-        res = refbrowser.ReferrersTree(root, str_func=foo, repeat=True).get_tree()
+        res = refbrowser.RefBrowser(root, str_func=foo, repeat=True).get_tree()
         self.assert_(str(res) == expected)
 
         
 test_print_tree = """
 
 let's start with a small tree first
->>> crb = refbrowser.ConsoleReferrersTree(None, maxdepth=1)
+>>> crb = refbrowser.ConsoleBrowser(None, maxdepth=1)
 >>> crb.print_tree(TreeTest.sample_tree)
 root-+-branch1
      +-branch2
      +-branch3
 
 okay, next level
->>> crb = refbrowser.ConsoleReferrersTree(None, maxdepth=2)
+>>> crb = refbrowser.ConsoleBrowser(None, maxdepth=2)
 >>> crb.print_tree(TreeTest.sample_tree)
 root-+-branch1-+-a
      |         +-b
@@ -120,7 +120,7 @@ root-+-branch1-+-a
 
 and now full size
 
->>> crb = refbrowser.ConsoleReferrersTree(None, maxdepth=4)
+>>> crb = refbrowser.ConsoleBrowser(None, maxdepth=4)
 >>> crb.print_tree(TreeTest.sample_tree)
 root-+-branch1-+-a
      |         +-b

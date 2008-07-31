@@ -1,12 +1,14 @@
 """Tree-like exploration of object referrers.
 
-Referrers of an object can be
-a) printed to the console
-b) printed to a text file
-c) inactively browsed in a graphical user interface.
+This module provides a base implementation for tree-like referrers browsing.
+The two non-interactive classes ConsoleBrowser and FileBrowser output a tree
+to the console or a file. Further types can be subclassed.
 
-The graphical user interface is based on a TreeWidget implemented in
-IDLE. It is available if you have Tcl/Tk installed.
+All types share a similar initialisation. That is, you provide a root object
+and may specify further settings such as the initial depth of the tree or an
+output function.
+Afterwards you can print the tree which will be arranged based on your previous
+settings.
 
 TODO:
 - fix ignore list integration
@@ -18,18 +20,21 @@ import sys
 import muppy
 import summary
 
-class Node(object):
+class _Node(object):
     """A node as it is used in the tree structure.
 
     Each node contains the object it represents and a list of children.
-    Children can be others nodes or arbitrary other objects. Any object
-    in a tree which is not of the type Node is considered a leaf.
+    Children can be other nodes or arbitrary other objects. Any object
+    in a tree which is not of the type _Node is considered a leaf.
     
     """
     def __init__(self, o, str_func=None):
-        """Besides the object this node represents you can define an output
-        function which will be used to represent this node. If no function
-        is defined, the default str representation is used.
+        """You have to define the object this node represents. Also you can
+        define an output function which will be used to represent this node.
+        If no function is defined, the default str representation is used.
+
+        keyword arguments
+        str_func -- output function
 
         """
         self.o = o
@@ -37,27 +42,29 @@ class Node(object):
         self.str_func = str_func
 
     def __str__(self):
+        """Override str(self.o) if str_func is defined."""
         if self.str_func is not None:
             return self.str_func(self.o)
         else:
             return str(self.o)
 
-
-class ReferrersTree(object):
-    """Base class to other ReferrerTree implementations.
+class RefBrowser(object):
+    """Base class to other RefBrowser implementations.
 
     This base class provides means to extract a tree from a given root object
-    and holds information on already known objects (to avoid repetition).
+    and holds information on already known objects (to avoid repetition
+    if requested).
     
     """
 
     def __init__(self, rootobject, maxdepth=3, str_func=None, repeat=True):
-        """Initializer.
+        """You have to provide the root object used in the refbrowser. 
         
         keyword arguments
-        maxdepth -- maximum depth of the initial node
+        maxdepth -- maximum depth of the initial tree
         str_func -- function used when calling str(node)
-        repeat -- should nodes appear repeatedly in the tree
+        repeat -- should nodes appear repeatedly in the tree, or should be
+                  referred to existing nodes
 
         """        
         self.root = rootobject
@@ -65,19 +72,35 @@ class ReferrersTree(object):
         self.str_func = str_func
         self.repeat = repeat
         # objects which should be ignored while building the tree
+        # e.g. the current frame
         self.ignore = []
         # set of object ids which are already included
         self.already_included = set()
         self.ignore.append(self.already_included)
 
     def get_tree(self):
-        """Get a tree of referrers of the root object o."""
+        """Get a tree of referrers of the root object.
+
+        gc.collect() is called by this method.
+        
+        """
         self.ignore.append(inspect.currentframe())
         return self._get_tree(self.root, self.maxdepth)
     
     def _get_tree(self, root, maxdepth):
+        """Workhorse of the get_tree implementation.
+
+        This is an recursive method which is why we have a wrapper method.
+        root is the current root object of the tree which should be returned.
+        Note that root is not of the type _Node.
+        maxdepth defines how much further down the from the root the tree
+        should be build.
+
+        gc.collect() is called by this method.
+        
+        """
         self.ignore.append(inspect.currentframe())
-        res = Node(root, self.str_func)
+        res = _Node(root, self.str_func)
         self.already_included.add(id(root))
         if maxdepth == 0:
             return res
@@ -85,9 +108,9 @@ class ReferrersTree(object):
         objects = gc.get_referrers(root)
         self.ignore.append(objects)
         for o in objects:
-            # XXX: find out how to ignore dict of Node objects
+            # XXX: find a better way to ignore dict of _Node objects
             if isinstance(o, dict):
-                sampleNode = Node(1)
+                sampleNode = _Node(1)
                 if sampleNode.__dict__.keys() == o.keys():
                     continue
             _id = id(o)
@@ -97,13 +120,18 @@ class ReferrersTree(object):
                 res.children.append("%s (already included, id %s)" %\
                                     (s, _id))
                 continue
-            if (not isinstance(o, Node)) and (o not in self.ignore):
+            if (not isinstance(o, _Node)) and (o not in self.ignore):
                 res.children.append(self._get_tree(o, maxdepth-1))
         return res
 
-class ConsoleReferrersTree(ReferrersTree):
-    """ReferrersTree implementation which prints the tree to the console."""
-    
+class ConsoleBrowser(RefBrowser):
+    """RefBrowser implementation which prints the tree to the console.
+
+    If you don't like the looks, you can change it a little bit.
+    The class attributes 'hline', 'vline', 'cross', and 'space' can be
+    modified to your needs.
+
+    """
     hline = '-'
     vline = '|'
     cross = '+'
@@ -113,7 +141,8 @@ class ConsoleReferrersTree(ReferrersTree):
         """ Print referrers tree to console.
         
         keyword arguments
-        tree -- if not None, the passed tree will be printed.
+        tree -- if not None, the passed tree will be printed. Otherwise it is
+                based on the rootobject.
                    
         """
         if tree == None:
@@ -134,14 +163,14 @@ class ConsoleReferrersTree(ReferrersTree):
         """
         level = prefix.count(self.cross) + prefix.count(self.vline)
         len_children = 0
-        if isinstance(tree , Node):
+        if isinstance(tree , _Node):
             len_children = len(tree.children)
 
         # add vertex
         prefix += str(tree)
         # and as many spaces as the vertex is long
         carryon += self.space * len(str(tree))
-        if (level == self.maxdepth) or (not isinstance(tree, Node)) or\
+        if (level == self.maxdepth) or (not isinstance(tree, _Node)) or\
            (len_children == 0):
             print prefix
             return
@@ -172,11 +201,11 @@ class ConsoleReferrersTree(ReferrersTree):
                             return
                         print carryon[:-2].rstrip()
 
-class FileReferrersTree(ConsoleReferrersTree):
-    """ReferrersTree implementation which prints the tree to a file."""
+class FileBrowser(ConsoleBrowser):
+    """RefBrowser implementation which prints the tree to a file."""
     
     def print_tree(self, filename, tree=None):
-        """ Print referrers tree to file.
+        """ Print referrers tree to file (in text format).
         
         keyword arguments
         tree -- if not None, the passed tree will be printed.
@@ -186,27 +215,33 @@ class FileReferrersTree(ConsoleReferrersTree):
         fsock = open(filename, 'w')
         sys.stdout = fsock
         try:
-            _print(tree, '', '') 
+            self._print(self.get_tree(), '', '') 
             sys.stdout = old_stdout
             fsock.close()
         except Exception:
+            print "Unexpected error:", sys.exc_info()[0]
+        finally:
             sys.stdout = old_stdout
             fsock.close()
 
-        
+# list to hold to referrers
+superlist = []
+root = "root"
+for i in range(3):
+    tmp = [root]
+    superlist.append(tmp)
+
+def foo(o): return str(type(o))
+
+
 def print_sample():
-    root = "root"
-    superlist = []
-    for i in range(3):
-        tmp = [root]
-        superlist.append(tmp)
-    def repr(o): return str(type(o))
-    crb = ConsoleReferrersTree(root, str_func=repr)
-    crb.print_tree()
+    cb = ConsoleBrowser(root, str_func=foo)
+    cb.print_tree()
 
 def write_sample():
-    frb = FileReferrersTree(root)
-    frb.print_tree('sample.txt')
+    fb = FileBrowser(root, str_func=foo)
+    fb.print_tree('sample.txt')
     
 if __name__ == "__main__":
-    print_sample()
+#    print_sample()
+    write_sample()
