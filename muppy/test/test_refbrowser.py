@@ -26,7 +26,6 @@ class TreeTest(unittest.TestCase):
             branch2.children.append(i)
             branch3.children.append(i)
         
-    
     def test_node(self):
         """Check node functionality.
 
@@ -46,7 +45,7 @@ class TreeTest(unittest.TestCase):
         # attach child
         n.children.append(2)
         
-    def test_get_referrers_tree(self):
+    def test_get_tree(self):
         #root <- ref1 <- ref11
         #     <- ref11 (already included)
         #     <- ref2 <- ref22
@@ -56,49 +55,49 @@ class TreeTest(unittest.TestCase):
         ref2 = {1: root}
         ref22 = {1: ref2}
 
-        res = refbrowser.get_referrers_tree(root)
+        res = refbrowser.ReferrersTree(root).get_tree()
         # note that ref11 should not be included due to the repeat argument
         refs = [ref1, ref2]
         children = [c.o for c in res.children if isinstance(c, refbrowser.Node)]
         for r in refs:
+            if r not in children:
+                print r
             self.assert_(r in children)
         self.assert_(ref11 not in children)
         # now we test the repeat argument
-        res = refbrowser.get_referrers_tree(root, repeat=True)
+        res = refbrowser.ReferrersTree(root, repeat=True).get_tree()
         refs = [ref1, ref11, ref2]
         children = [c.o for c in res.children if isinstance(c, refbrowser.Node)]
         for r in refs:
             self.assert_(r in children)
         # test if maxdepth is working
-        res = refbrowser.get_referrers_tree(root, maxdepth=0)
+        res = refbrowser.ReferrersTree(root, maxdepth=0).get_tree()
         self.assert_(len(res.children) == 0)
-        res = refbrowser.get_referrers_tree(root, maxdepth=1)
+        res = refbrowser.ReferrersTree(root, maxdepth=1).get_tree()
         for c in res.children:
             if c == ref1:
                 self.assert_(len(c.children) == 0)
         # test if the str_func is applied correctly
         expected = 'the quick brown fox'
         def foo(o): return expected
-        res = refbrowser.get_referrers_tree(root, str_func=foo)
+        res = refbrowser.ReferrersTree(root, str_func=foo).get_tree()
         self.assert_(str(res) == expected)
-        res = refbrowser.get_referrers_tree(root, str_func=foo, repeat=True)
+        res = refbrowser.ReferrersTree(root, str_func=foo, repeat=True).get_tree()
         self.assert_(str(res) == expected)
 
-    def test_print_tree(self):
-        """Check if tree is written to file correctly."""
-
-        
         
 test_print_tree = """
 
 let's start with a small tree first
->>> refbrowser.print_tree(TreeTest.sample_tree, 1)
+>>> crb = refbrowser.ConsoleReferrersTree(None, maxdepth=1)
+>>> crb.print_tree(TreeTest.sample_tree)
 root-+-branch1
      +-branch2
      +-branch3
 
 okay, next level
->>> refbrowser.print_tree(TreeTest.sample_tree, 2)
+>>> crb = refbrowser.ConsoleReferrersTree(None, maxdepth=2)
+>>> crb.print_tree(TreeTest.sample_tree)
 root-+-branch1-+-a
      |         +-b
      |         +-c
@@ -121,7 +120,8 @@ root-+-branch1-+-a
 
 and now full size
 
->>> refbrowser.print_tree(TreeTest.sample_tree)
+>>> crb = refbrowser.ConsoleReferrersTree(None, maxdepth=4)
+>>> crb.print_tree(TreeTest.sample_tree)
 root-+-branch1-+-a
      |         +-b
      |         +-c

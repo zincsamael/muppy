@@ -39,7 +39,7 @@ import RemoteDebugger
 import gc
 import muppy
 from muppy import tracker
-from muppy import refbrowser
+from muppy import refbrowser_gui
 from muppy import summary
 
 IDENTCHARS = string.ascii_letters + string.digits + "_"
@@ -1266,7 +1266,7 @@ class PyShell(OutputWindow):
         objects = gc.get_objects()
         for o in objects:
             if isinstance(o, ListedToplevel):
-                browser = refbrowser.InteractiveBrowser(o)
+                browser = refbrowser_gui.InteractiveBrowser(o)
                 browser.main()
 
 class PseudoFile(object):
