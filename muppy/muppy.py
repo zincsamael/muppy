@@ -178,6 +178,10 @@ def get_usage(function, *args):
         res = tmp
     return res
 
+def print_summary():
+    """Print a summary of all known objects."""
+    summary.print_(summary.summarize(get_objects()))
+
 def _is_containerobject(o):
     """Is the passed object a container object."""
     if type(o).__flags__ & TPFLAGS_HAVE_GC == 0:
