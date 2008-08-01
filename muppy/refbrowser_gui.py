@@ -131,7 +131,6 @@ class ReferrerTreeItem(TreeWidget.TreeItem, Tkinter.Label):
         children = self.node.children
         if (len(children) == 0) and\
            (muppy._is_containerobject(self.node.o)):
-            print "get children"
             self.node = self.reftree._get_tree(self.node.o, 1)
             self._clear_children()
             children = self.node.children
