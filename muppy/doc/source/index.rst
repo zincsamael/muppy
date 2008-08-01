@@ -24,6 +24,7 @@ Contents:
    remarks
    tutorial
    library/library
+   related
    glossary
    copyright
 
