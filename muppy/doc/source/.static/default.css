@@ -23,7 +23,7 @@ div.documentwrapper {
 }
 
 div.bodywrapper {
-    margin: 0 230px 0 0px;
+    margin: 0 0 0 0;
 }
 
 div.body {
@@ -33,6 +33,11 @@ div.body {
 
 div.sphinxsidebarwrapper {
     padding: 10px 5px 0 10px;
+}
+
+
+div.sphinxsidebar {
+        display: none;
 }
 
 div.sphinxsidebar {
