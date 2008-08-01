@@ -1250,15 +1250,6 @@ class PyShell(OutputWindow):
         gc.collect()
         self.memory_tracker.print_diff()
 
-    def compute_diff(self):
-        import types
-        o1 = muppy.filter(self.o1, Type=str)
-        o2 = muppy.filter(self.o0, Type=str)
-        diff = muppy.get_diff(o1, o2)
-        for d in diff['+']:
-            print "+d=%s" % d
-            print 
-
     def ref_browser(self, s):
         from WindowList import ListedToplevel
         from TreeWidget import TreeNode, ScrolledCanvas
