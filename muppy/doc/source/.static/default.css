@@ -23,7 +23,7 @@ div.documentwrapper {
 }
 
 div.bodywrapper {
-    margin: 0 0 0 230px;
+    margin: 0 230px 0 0px;
 }
 
 div.body {
@@ -36,7 +36,7 @@ div.sphinxsidebarwrapper {
 }
 
 div.sphinxsidebar {
-    float: left;
+    float: right;
     width: 230px;
     margin-left: -100%;
     font-size: 90%;
