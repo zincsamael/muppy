@@ -3,11 +3,12 @@
 To Do
 -----
 - always invoke gc.collect() before objects are fetched
-- more tests
-- do we need an IdentitySet?
 
 """
 
-__all__ = ['tracker', 'tree', 'summary']
+__all__ = ['refbrowser',
+           'refbrowser_gui',
+           'tracker',
+           'summary']
 
 from muppy import *

@@ -13,12 +13,12 @@ class tracker(object):
     snapshots are sufficient to monitor the memory usage over the lifetime of
     an application.
 
-    On initialisation, a first snapshot is taken. Everytime diff() is called,
+    On initialisation, a first snapshot is taken. Everytime `diff` is called,
     a new snapshot will be taken. Thus, a diff between the new and the last
     snapshot can be extracted.
 
     If you make use of the ignore_self parameter, please note that on each
-    snapshot gc.collect is called in order deal with snapshots which are
+    snapshot `gc.collect` is called in order deal with snapshots which are
     to be ignored.
 
     """

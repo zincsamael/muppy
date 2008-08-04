@@ -1,4 +1,6 @@
-Summary
+.. _summary-module:
+
+summary
 =======
 
 .. automodule:: summary
@@ -7,7 +9,7 @@ Summary
 functions
 ---------
 
-.. autofunction:: summary.summarize
+.. autofunction:: summarize
 
 .. autofunction:: get_diff
 

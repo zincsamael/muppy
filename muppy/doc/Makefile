@@ -3,7 +3,8 @@
 
 # You can set these variables from the command line.
 SPHINXOPTS    =
-SPHINXBUILD   = sphinx-build
+#SPHINXBUILD   = sphinx-build
+SPHINXBUILD   = /home/bob/python/svn/doctools/sphinx-build.py
 PAPER         =
 
 # Internal variables.

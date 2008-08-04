@@ -12,7 +12,7 @@ Glossary
 
   ``snapshot``
 	A snapshot is summary which was taken at a specific time. It is used
-	in the context of the tracker (see :ref:`tracker`).
+	in the context of the tracker (see :ref:`tracker_module`).
 
   ``summary``
 	A summary contains information about objects in a table-like manner.

@@ -4,7 +4,8 @@ Intro
 
 Muppy is (yet another) Memory Usage Profiler for Python. The focus of this
 toolset is laid on the identification of memory leaks. Other tools
-(:ref:`Related_Work`) have other focuses.
+(:ref:`Related_Work`) have other focuses. Let's have a look what you can do with
+muppy. 
 
 The muppy module
 ================
@@ -43,7 +44,8 @@ sre_parse.Pattern
 distutils.log.Log
 codecs.Codec
 
-or determine wether more memory is used after a certain function has been called
+or determine wether more memory is used after a certain function has been
+called. 
 
 >>> global_list = []
 >>> def foo():
@@ -123,7 +125,7 @@ on initialisation. Now whenever you call tracker.print_diff(), a new snapshot of
 the current state is created, compared to the previous snapshot and printed to
 the console. As you can see here, quite a few objects got in between these two
 invocations. 
-But if you don't do anything, nothing will change
+But if you don't do anything, nothing will change.
 
 >>> tr.print_diff()
   types |   # objects |   total size
@@ -140,7 +142,7 @@ Now check out this code snippet
    dict |           1 |          280
    list |           1 |          224
 
-As you can see, both the new list and the new dict appear in the summary, but
+As you can see both, the new list and the new dict appear in the summary, but
 not the 4 integers used. Why is that? Because they existed already before the
 where used here. 
 
@@ -149,21 +151,20 @@ The refbrowser module
 
 In case some objects are leaking and you don't know where they are still
 referenced, you can use the referrers browser.
+At first let's create a root object which we then reference from a tuple and a
+list.
 
 >>> from muppy import refbrowser
 >>> root = "some root object"
 >>> root_ref1 = [root]
 >>> root_ref2 = (root, )
 
-At first we create a root object which we then reference from a tuple and a
-list.
-
 >>> def str_func(o):
 ...     return str(type(o))
 ...
 >>> cb = refbrowser.ConsoleBrowser(root, maxdepth=2, str_func=str_func)
 
-Next we create a ConsoleBrowser, which will give us a referrers tree starting at
+Then we create a ConsoleBrowser, which will give us a referrers tree starting at
 `root`, printing to a maximum depth of 2, and uses `str_func` to represent
 objects. Now it's time to see where we are at.
 
@@ -186,8 +187,8 @@ objects. Now it's time to see where we are at.
              +-<type 'tuple'>--<type 'dict'>
              +-<type 'dict'>--<class 'muppy.refbrowser.ConsoleBrowser'>
 
-What we see is that the root object is referenced by our tuple and the list, as
-well as by three other dictionaries.
+What we see is that the root object is referenced by the tuple and the list, as
+well as by three dictionaries.
 
 This console browsing is of course kind of inconvenient. Much better would be an
 InteractiveBrowser. Let's see what we got.

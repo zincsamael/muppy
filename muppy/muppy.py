@@ -3,7 +3,7 @@ import sys
 
 import summary
 
-TPFLAGS_HAVE_GC = 1<<14
+__TPFLAGS_HAVE_GC = 1<<14
 
 def get_objects(remove_dups=True):
     """Return a list of all known (gc-vice) objects.
@@ -184,7 +184,7 @@ def print_summary():
 
 def _is_containerobject(o):
     """Is the passed object a container object."""
-    if type(o).__flags__ & TPFLAGS_HAVE_GC == 0:
+    if type(o).__flags__ & __TPFLAGS_HAVE_GC == 0:
         return False
     else:
         return True

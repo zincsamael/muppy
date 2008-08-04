@@ -1,12 +1,15 @@
-.. _tracker:
+.. _tracker_module:
 
 =======
-Tracker
+tracker
 =======
 
 .. automodule:: tracker
 
    .. autoclass:: tracker
  
-..	.. automethod:: diff
+	.. automethod:: diff
 
+	.. automethod:: print_diff
+
+	.. automethod:: store_snapshot

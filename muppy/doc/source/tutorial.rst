@@ -59,23 +59,23 @@ have a look at the objects, invoke an action, and look at the objects again.
 - why does it leak?
 
 
-Tkinter.py
-class Misc
-      def destroy
-      	  def _register
+.. Tkinter.py
+.. class Misc
+..       def destroy
+..       	  def _register
 
-	  destroy only called when object is destroyed
-	  callWrappers assigned to 'Windows' List
-	   -> not released
+.. 	  destroy only called when object is destroyed
+.. 	  callWrappers assigned to 'Windows' List
+.. 	   -> not released
 
-	   maybe deletecommand can be invoked somewhere
+.. 	   maybe deletecommand can be invoked somewhere
 
-	   http://bugs.python.org/issue1342811
-	   http://www.uk.debian.org/~graham/python/tkleak.py
+.. 	   http://bugs.python.org/issue1342811
+.. 	   http://www.uk.debian.org/~graham/python/tkleak.py
 
 
-	   http://www.tcl.tk/man/tcl8.5/TkCmd/text.htm#M98
-		i.e. the character at index2 is not deleted
+.. 	   http://www.tcl.tk/man/tcl8.5/TkCmd/text.htm#M98
+.. 		i.e. the character at index2 is not deleted
 
 trac
 ====

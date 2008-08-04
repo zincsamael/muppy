@@ -24,7 +24,7 @@ def default_str_function(o):
     """Default str function for InteractiveBrowser."""
     return summary._repr(o) + '(id=%s)' % id(o)
 
-class TreeNode(TreeWidget.TreeNode):
+class _TreeNode(TreeWidget.TreeNode):
     """TreeNode used by the InteractiveBrowser.
 
     Not to be confused with refbrowser._Node. This one is used in the GUI
@@ -33,14 +33,14 @@ class TreeNode(TreeWidget.TreeNode):
     """
 
     def reload_referrers(self):
-        """Reload all referrers for this TreeNode."""
+        """Reload all referrers for this _TreeNode."""
         self.item.node = self.item.reftree._get_tree(self.item.node.o, 1)
         self.item._clear_children()
         self.expand()
         self.update()
 
     def print_object(self):
-        """Print object which this TreeNode represents to console."""
+        """Print object which this _TreeNode represents to console."""
         print self.item.node.o
 
     def drawtext(self):
@@ -69,7 +69,7 @@ class TreeNode(TreeWidget.TreeNode):
     def edit_finish(self, event=None): pass
     def edit_cancel(self, event=None): pass
 
-class ReferrerTreeItem(TreeWidget.TreeItem, Tkinter.Label):
+class _ReferrerTreeItem(TreeWidget.TreeItem, Tkinter.Label):
     """Tree item wrapper around refbrowser._Node object."""
 
     def __init__(self, parentwindow, node, reftree):
@@ -92,7 +92,7 @@ class ReferrerTreeItem(TreeWidget.TreeItem, Tkinter.Label):
         """
         new_children = []
         for child in self.node.children:
-            if not isinstance(child, TreeNode):
+            if not isinstance(child, _TreeNode):
                 new_children.append(child)
         self.node.children = new_children
 
@@ -136,7 +136,7 @@ class ReferrerTreeItem(TreeWidget.TreeItem, Tkinter.Label):
             children = self.node.children
 
         for child in children:
-            item = ReferrerTreeItem(self.parentwindow, child, self.reftree)
+            item = _ReferrerTreeItem(self.parentwindow, child, self.reftree)
             sublist.append(item)
         return sublist
 
@@ -160,8 +160,8 @@ class InteractiveBrowser(refbrowser.RefBrowser):
         sc = TreeWidget.ScrolledCanvas(window, bg="white",\
                                        highlightthickness=0, takefocus=1)
         sc.frame.pack(expand=1, fill="both")
-        item = ReferrerTreeItem(window, self.get_tree(), self)
-        node = TreeNode(sc.canvas, None, item)
+        item = _ReferrerTreeItem(window, self.get_tree(), self)
+        node = _TreeNode(sc.canvas, None, item)
         node.expand()
         if standalone:
             window.mainloop()

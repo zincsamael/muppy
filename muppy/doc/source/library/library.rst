@@ -2,13 +2,16 @@
 Library
 =======
 
-MUPPy provides a set of modules ...
+muppy provides a set of modules ...
 
 
 .. toctree::
+   :maxdepth: 1
 
-   tracker
+   muppy
+   refbrowser
+   refbrowser-gui
    summary
+   tracker
 
 
-la la, some text, la, la
