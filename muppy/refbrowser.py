@@ -142,7 +142,7 @@ class ConsoleBrowser(RefBrowser):
         
         keyword arguments
         tree -- if not None, the passed tree will be printed. Otherwise it is
-                based on the rootobject.
+        based on the rootobject.
                    
         """
         if tree == None:

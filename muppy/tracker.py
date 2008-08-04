@@ -1,3 +1,10 @@
+"""The tracker module allows you to track changes in the memory usage over
+time. Using a tracker object, you can create snapshots and compare them
+with each other. Also stored snapshots can be ignored during comparision,
+avoiding the observer effect. 
+
+"""
+
 import gc
 import sys
 
@@ -20,6 +27,9 @@ class tracker(object):
     If you make use of the ignore_self parameter, please note that on each
     snapshot `gc.collect` is called in order deal with snapshots which are
     to be ignored.
+    Also be aware that filtering out previous snapshots is time-intensive. You
+    should therefore restrict yourself to the number of snapshots you really
+    need.
 
     """
 

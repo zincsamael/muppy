@@ -31,7 +31,6 @@ class _TreeNode(TreeWidget.TreeNode):
     context. 
 
     """
-
     def reload_referrers(self):
         """Reload all referrers for this _TreeNode."""
         self.item.node = self.item.reftree._get_tree(self.item.node.o, 1)
@@ -146,13 +145,13 @@ class InteractiveBrowser(refbrowser.RefBrowser):
     If you do not define str_func, default_str_function will be used.
     
     """
-
     def main(self, standalone=False):
         """Create interactive browser window.
 
         keyword arguments
         standalone -- Set to true, if the browser is not attached to other
-                      windows
+        windows
+        
         """
         if self.str_func == None:
             self.str_func = default_str_function
