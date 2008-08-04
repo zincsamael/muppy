@@ -1,2 +1,4 @@
+.. _copyright:
+
 Copyright
 =========

@@ -6,6 +6,9 @@ tracker
 
 .. automodule:: tracker
 
+Classes
+-------
+
    .. autoclass:: tracker
  
 	.. automethod:: diff

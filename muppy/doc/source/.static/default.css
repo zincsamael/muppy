@@ -684,7 +684,7 @@ table.footnote td, table.footnote th {
 }
 
 dl {
-    margin-bottom: 15px;
+    margin-bottom: 1px;
     clear: both;
 }
 
@@ -835,4 +835,10 @@ form.comment textarea {
     #top-link {
         display: none;
     }
+}
+
+/* :::: OWN :::: */
+
+.section ul {
+    margin: 0.2em;
 }
