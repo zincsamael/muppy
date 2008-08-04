@@ -12,3 +12,8 @@ __all__ = ['refbrowser',
            'summary']
 
 from muppy import *
+
+def print_summary():
+    """Print a summary of all known objects."""
+    summary.print_(summary.summarize(get_objects()))
+

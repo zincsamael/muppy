@@ -56,7 +56,7 @@ def sort(objects):
     objects.sort(lambda x, y: sys.getsizeof(x) - sys.getsizeof(y))
     return objects
     
-def filter(objects, Type=object, min=-1, max=-1):
+def filter(objects, Type=None, min=-1, max=-1):
     """Filter objects.
 
     The filter can be by type, minimum size, and/or maximum size.
@@ -70,8 +70,8 @@ def filter(objects, Type=object, min=-1, max=-1):
     res = []
     if min > max:
         raise ValueError("minimum must be smaller than maximum")
-    
-    [res.append(o) for o in objects if type(o) == Type]
+    if Type is not None:
+        [res.append(o) for o in objects if isinstance(o, Type)]
     if min > -1:
         [res.remove(o) for o in res if sys.getsizeof(o) < min]
     if max > -1:
@@ -177,10 +177,6 @@ def get_usage(function, *args):
     if len(tmp) != 0:
         res = tmp
     return res
-
-def print_summary():
-    """Print a summary of all known objects."""
-    summary.print_(summary.summarize(get_objects()))
 
 def _is_containerobject(o):
     """Is the passed object a container object."""
