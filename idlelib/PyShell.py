@@ -1255,9 +1255,9 @@ class PyShell(OutputWindow):
         from TreeWidget import TreeNode, ScrolledCanvas
         gc.collect()
         objects = gc.get_objects()
-        for o in objects:
-            if isinstance(o, ListedToplevel):
-                browser = refbrowser_gui.InteractiveBrowser(o)
+        toplevels = muppy.filter(objects, Type=ListedToplevel)
+        for tl in toplevels:
+                browser = refbrowser_gui.InteractiveBrowser(tl)
                 browser.main()
 
 class PseudoFile(object):
