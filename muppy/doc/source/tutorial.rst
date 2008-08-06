@@ -57,7 +57,7 @@ The last step is repeated after each invocation. Let's start with something
 simple which should not leak. We will check the Windows resize. You can invoke
 it in the menu at `Windows->Zoom Height`.
 
-At first call `print_diff` till it hsa calibrated. That is, the first one or two
+At first call `print_diff` till it has calibrated. That is, the first one or two
 times, you will get some output because there is still something going on in the
 background. But then you should get this
 
@@ -65,7 +65,7 @@ background. But then you should get this
  types |   # objects |   total size
 ====== | =========== | ============
   
-Which means nothin has changed since the last invocation of `print_diff`. Now
+Which means nothing has changed since the last invocation of `print_diff`. Now
 let's call `Windows->Zoom Height` and invoke `print_diff` again.
 
 >>>
@@ -142,8 +142,8 @@ closing the window does not remove the reference.
 Next, we take a look at the `wakeup` instance method of which we have three more
 on each invocation. Searching the code, we find it to be defined in
 `idlelib/WindowList.py`. This piece of code is used to give users of IDLE a list
-of currently open windows. Everytime a new window is created, it will be added
-to the `Windows` menu, from where the user can select any open window. `wakup`
+of currently open windows. Every time a new window is created, it will be added
+to the `Windows` menu, from where the user can select any open window. `wakeup`
 is the method which will bring the selected window up front. Adding a window
 calls menu.add_command, linking menu and the wakeup command together.
 
@@ -165,7 +165,7 @@ the stored function call. A CallWrapper is created by the method `_register`
 which then creates a command (Tk speak) and adds it's name to a list called
 `self._tclCommands`.
 
-So what do we know so far? Everytime a Path Browser is opened, a window is
+So what do we know so far? Every time a Path Browser is opened, a window is
 created, but not deleted when closed again. It has something to do with the
 `wakeup` method of the window, which is being wrapped as a command and linked to
 the window list menu. Also, we have traced this wrapping back to Tkinter, where

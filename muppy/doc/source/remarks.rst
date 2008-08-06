@@ -12,7 +12,7 @@ application, which is a strong indicator that the program leaks memory.
 
 Muppy's focus is on the latter, the identification of memory leaks.
 
-Quoting wikipedia (memory_leak_), a memory leak is a ::
+Quoting Wikipedia (memory_leak_), a memory leak is a ::
 
   "[..] particular type of unintentional memory consumption by a computer
   program where the program fails to release memory when no longer needed. This
@@ -26,7 +26,7 @@ Memory profiling of Python applications can take place on several levels.  For
 one, the Python code itself can be the cause for a memory leak. But also other
 possibilities should be considered. Python itself is written in C, Java, or
 possibly C# (even more are possible). Also, modules used may be written in C
-(c_api_) or make use of third party software (tkinter_). Thus, an unsual memory
+(c_api_) or make use of third party software (tkinter_). Thus, an unusual memory
 consumption may also be caused by non-Python code.
 
 Muppy only considers Python code. You will not be able to identify leaks caused
@@ -61,9 +61,9 @@ Garbage Collection
 ------------------
 
 If you analyze the state of objects, be aware of the Python garbage collector
-(GC) and how it works. Firts of all, only container objects are handled by the
+(GC) and how it works. First of all, only container objects are handled by the
 GC. A container object is an object which holds references to other objects. A
-tuple is a container object, an integer ist not. When container objects are
+tuple is a container object, an integer is not. When container objects are
 deleted or not referenced anymore, they may be collected by the garbage
 collector. But normally a GC run is not predictable. Thus, it is likely that
 when analyzing objects, you also get a bunch of 'old' objects (that is objects

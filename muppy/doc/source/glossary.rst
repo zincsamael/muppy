@@ -10,7 +10,7 @@ Glossary
 
   ``muppy``
 	An acronym for Memory Usage Profiler for Python. Also the name of this
-	toolset. 
+	tool set. 
 
   ``snapshot``
 	A snapshot is summary which was taken at a specific time. It is used

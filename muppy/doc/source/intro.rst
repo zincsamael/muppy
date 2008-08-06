@@ -46,7 +46,7 @@ sre_parse.Pattern
 distutils.log.Log
 codecs.Codec
 
-or determine wether more memory is used after a certain function has been
+or determine whether more memory is used after a certain function has been
 called. 
 
 >>> global_list = []
@@ -123,7 +123,7 @@ muppy's tracker.
                                int |          39 |          936
 
 A tracker object creates a snapshot (that is a summary which it will remember)
-on initialisation. Now whenever you call tracker.print_diff(), a new snapshot of
+on initialization. Now whenever you call tracker.print_diff(), a new snapshot of
 the current state is created, compared to the previous snapshot and printed to
 the console. As you can see here, quite a few objects got in between these two
 invocations. 
