@@ -1,0 +1,3 @@
+recursive-include doc *.css *.html
+prune doc/source/*
+prune doc/build/*
