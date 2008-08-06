@@ -1,0 +1,2 @@
+Note that muppy only works with CPython 2.6 and higher. Any other Python
+version will NOT work.
