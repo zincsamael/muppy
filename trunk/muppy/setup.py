@@ -1,4 +1,10 @@
-"""Setup script for the muppy package."""
+"""Setup script for the muppy package.
+
+To include the compiled html documentation right in the doc/, all html files from
+`compiled_doc_dir` are moved directly into the `doc_dir`, the setup is executed, and
+the files are removed afterwards.
+
+"""
 from distutils.core import setup
 import os
 import shutil
@@ -58,8 +64,10 @@ def run_setup():
           author_email='robert.schuppenies@gmail.com',
           url='http://pypi.python.org/pypi/muppy/' + _version,
           version=_version,
+
           packages=['muppy'],
           package_dir = {'muppy':'.'},
+          
           license='Apache License, Version 2.0',
           platforms = ['any'],
           classifiers=['Development Status :: 3 - Alpha',
