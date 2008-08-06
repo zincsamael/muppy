@@ -20,6 +20,14 @@ object and its referents recursively up to a specified level.
 
 URL: http://code.activestate.com/recipes/546530/
 
+HeapMonitor
+-----------
+"The Heapmonitor is a facility delivering insight into the memory distribution
+of SCons. It provides facilities to size individual objects and can track all
+objects of certain classes." It was developed in 2008 by Ludwig Haehne.
+
+URL: http://www.scons.org/wiki/LudwigHaehne/HeapMonitor
+
 Heapy
 -----
 
@@ -70,11 +78,6 @@ dict with keys as the string names of the types being tracked and values of the
 amount of memory being used by the type" are available.
 
 URL: http://svn.python.org/projects/python/branches/bcannon-sandboxing/PEP.txt
-
-HeapMonitor
------------
-by Ludwig Haehne
-
 
 ToDo
 ----
