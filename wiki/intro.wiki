@@ -1,0 +1,18 @@
+#project introduction
+
+= About muppy =
+
+Muppy is (yet another) memory usage profiler for Python. If you are interested in the usage of muppy, visit the XXX. 
+If you have questions regarding muppy and could not find the right answer in the documentation, go ahead and ask on the [http://groups.google.com/group/muppy-dev mailing list].
+
+Muppy's project hosting is allocated in two places. 
+ * XXX is the project's homepage. It has a tutorial, remarks on memory profiling, and the library documentation.
+ * The this page (code.google.com), which is about the development of muppy. It hosts the repository and the issue tracker.
+
+So if you are interested in the usage of muppy, visit the XXX.
+
+= Development of muppy =
+If you are interested in the development of muppy, this is the right place to be.
+Discussions are in the mailing list (http://groups.google.com/group/muppy-dev). 
+
+If you found a bug, want to suggest a new feature, or have any other issue with muppy, please use the [http://code.google.com/p/muppy/issues/ Issue Tracker].
