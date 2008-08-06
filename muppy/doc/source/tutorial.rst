@@ -35,7 +35,7 @@ Preparations
 ------------
 IDLE is part of every Python distribution and can be found at
 :file:`Lib/idlelib`. The modified version which makes use of muppy can be found
-at XXX:TODO.
+at http://code.google.com/p/muppy/source/browse/trunk#trunk/playground/idlelib.
 
 With IDLE having a GUI, I also wanted to be able to interact with muppy through
 the GUI. This can be done in :file:`Lib/idlelib/Bindings.py` and
