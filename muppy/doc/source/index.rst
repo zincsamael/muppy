@@ -1,8 +1,13 @@
 Welcome to muppy's documentation!
 =================================
 
-Welcome to the documentation of muppy, (yet another) memory usage profiler for Python.
+Welcome to the documentation of muppy, (yet another) memory usage profiler for
+Python.
 
+Muppy tries to help developers to identity memory leaks of Python
+applications. It enables the tracking of memory usage during runtime and the
+identification of objects which are leaking. Also, tools are provided which
+allow to locate the source of not released objects.
 
 Table of Content
 ----------------
