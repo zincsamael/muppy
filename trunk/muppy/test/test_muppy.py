@@ -25,7 +25,6 @@ class MuppyTest(unittest.TestCase):
         list3 = [o5, o3, o1, o4, o2]
         list4 = [o1, o2, o3, o4, o6]
 
-
         # empty lists
         expected = {'+': [], '-': []}
         self.assertEqual(muppy.get_diff([], []), expected)
@@ -137,9 +136,9 @@ class MuppyTest(unittest.TestCase):
         e = 1
         def function(): pass
         expected = None
-        # XXX: TODO
-        res = muppy.get_usage(function)
-        print res
+        # XXX: Fix get_usage tests.
+#        res = muppy.get_usage(function)
+#        print res
 #        self.assertEqual(res, expected)
         # passing of parameter should also work
 #        def function(arg):
