@@ -19,21 +19,29 @@ class MuppyTest(unittest.TestCase):
         newly created objects, as well as removed objects.
         The sorting is irrelevant.
         """
-        (o1, o2, o3, o4, o5) = (1, 'a', 'b', 4, 5)
+        (o1, o2, o3, o4, o5, o6) = (1, 'a', 'b', 4, 5, (1,))
         list1 = [o1, o2, o3, o4]
         list2 = [o1, o2, o3, o4, o5]
         list3 = [o5, o3, o1, o4, o2]
+        list4 = [o1, o2, o3, o4, o6]
 
+
+        # empty lists
         expected = {'+': [], '-': []}
         self.assertEqual(muppy.get_diff([], []), expected)
-
+        # one more entry
         expected = {'+': [o5], '-': []}
         self.assertEqual(muppy.get_diff(list1, list2), expected)
+        # one more entry, but different order
         self.assertEqual(muppy.get_diff(list1, list3), expected)
-        
+        # one entry removed
         expected = {'+': [], '-': [5]}
         self.assertEqual(muppy.get_diff(list2, list1), expected)
+        # one entry removed, but different order
         self.assertEqual(muppy.get_diff(list3, list1), expected)
+        # one more entry of different type
+        expected = {'+': [o6], '-': []}
+        self.assertEqual(muppy.get_diff(list1, list4), expected)
 
     def test_filter_by_type(self):
         """Check that only elements of a certain type are included,
