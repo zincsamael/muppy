@@ -47,8 +47,37 @@ def get_diff(left, right):
 
     """
     res = {'+': [], '-': []}
-    res['+'] = [o for o in right if o not in left]
-    res['-'] = [o for o in left if o not in right]
+
+    def partition(objects):
+        """Partition the passed object list."""
+        res = {}
+        for o in objects:
+            t = type(o)
+            if type(o) not in res:
+                res[t] = []
+            res[t].append(o)
+        return res
+
+    def get_not_included(foo, bar):
+        """Compare objects from foo with objects defined in the values of
+        bar (set of partitions).
+        Returns a list of all objects included in list, but not dict values.
+        """
+        res = []
+        for o in foo:
+            if type(o) not in bar:
+                res.append(o)
+            elif o not in bar[type(o)]:
+                res.append(o)
+        return res
+        
+    # Create partitions of both lists. This will reduce the time required for
+    # the comparison
+    left_objects = partition(left)
+    right_objects = partition(right)
+    # and then do the diff
+    res['+'] = get_not_included(right, left_objects)
+    res['-'] = get_not_included(left, right_objects)
     return res
 
 def sort(objects):
