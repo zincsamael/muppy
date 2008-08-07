@@ -171,6 +171,8 @@ def _repr(o, verbosity=1):
     address = re.compile(r' at 0x[0-9a-f]+')
     type_suffix = re.compile(r"'>$")
 
+    # XXX: move the output definitions to a more general place
+    #      they should be modifiable by the user
     frame = [
         lambda f: "frame (codename: %s)" %\
                    (f.f_code.co_name),
@@ -183,6 +185,11 @@ def _repr(o, verbosity=1):
     classobj = [
         lambda x: "classobj(%s)" % repr(o),
     ]
+    _dict = [ lambda x: "dict, len=%s" % len(x) ]
+    function = [
+        lambda x: "function (%s)" % x.__name__,
+        lambda x: "function (%s.%s)" % (x.__module, x.__name__),
+    ]
     instance = [
         lambda x: "instance(%s)" % repr(o.__class__),
     ]
@@ -192,12 +199,20 @@ def _repr(o, verbosity=1):
         lambda x: "instancemethod (%s, %s)" %\
                                   (repr(x.im_class), repr(x.im_func)),
     ]
+    _list = [ lambda x: "list, len=%s" % len(x) ]
+    module = [ lambda x: "module(%s)" % x.__name__ ]
+    _set = [ lambda x: "set, len=%s" % len(x) ]
     
     representations = {
-        types.FrameType: frame,
-        types.MethodType: instancemethod,
-        types.InstanceType: instance,
         types.ClassType: classobj,
+        dict: _dict,
+        types.FunctionType: function,
+        types.FrameType: frame,
+        types.InstanceType: instance,
+        list: _list,
+        types.MethodType: instancemethod,
+        types.ModuleType: module,
+        set: _set,
     }
 
     res = ""
