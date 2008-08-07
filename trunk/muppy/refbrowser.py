@@ -57,7 +57,7 @@ class RefBrowser(object):
     
     """
 
-    def __init__(self, rootobject, maxdepth=3, str_func=None, repeat=True):
+    def __init__(self, rootobject, maxdepth=3, str_func=summary._repr, repeat=True):
         """You have to provide the root object used in the refbrowser. 
         
         keyword arguments
