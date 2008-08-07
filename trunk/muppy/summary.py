@@ -158,13 +158,15 @@ def _repr(o, verbosity=1):
     verbosity -- if True the first row is treated as a table header
 
     """
-    # Following are various outputs for different types which may be
-    # interesting during memory profiling.
-    # The later they appear in a list, the higher the verbosity should be.
-    
+    # Following are various outputs for different types which may be interesting
+    # during memory profiling.  The later they appear in a list, the higher the
+    # verbosity should be.
+    #
     # Because some computations are done with the rows of summaries, these rows
     # have to remain comparable. Therefore information which reflect an objects
     # state, e.g. the current line number of a frame, should not be returned
+    # Summaries will only build with verbosity level 1. You may add more
+    # detailed information at higher verbosity levels.
 
     # regular expressions replaced in return value
     type_prefix = re.compile(r"^<type '")
@@ -185,7 +187,10 @@ def _repr(o, verbosity=1):
     classobj = [
         lambda x: "classobj(%s)" % repr(o),
     ]
-    _dict = [ lambda x: "dict, len=%s" % len(x) ]
+    _dict = [
+        lambda x: str(type(x)),
+        lambda x: "dict, len=%s" % len(x),
+    ]
     function = [
         lambda x: "function (%s)" % x.__name__,
         lambda x: "function (%s.%s)" % (x.__module, x.__name__),
@@ -199,9 +204,15 @@ def _repr(o, verbosity=1):
         lambda x: "instancemethod (%s, %s)" %\
                                   (repr(x.im_class), repr(x.im_func)),
     ]
-    _list = [ lambda x: "list, len=%s" % len(x) ]
+    _list = [
+        lambda x: str(type(x)),
+        lambda x: "list, len=%s" % len(x)
+    ]
     module = [ lambda x: "module(%s)" % x.__name__ ]
-    _set = [ lambda x: "set, len=%s" % len(x) ]
+    _set = [
+        lambda x: str(type(x)),
+        lambda x: "set, len=%s" % len(x)
+    ]
     
     representations = {
         types.ClassType: classobj,
