@@ -180,9 +180,11 @@ def _repr(o, verbosity=1):
                    (f.f_code.co_name, f.f_code.co_filename,\
                     f.f_code.co_firstlineno)
     ]
+    classobj = [
+        lambda x: "classobj(%s)" % repr(o),
+    ]
     instance = [
-        lambda x: "instance(%s)" %\
-                                  (repr(o.__class__)),
+        lambda x: "instance(%s)" % repr(o.__class__),
     ]
     instancemethod = [
         lambda x: "instancemethod (%s)" %\
@@ -194,7 +196,8 @@ def _repr(o, verbosity=1):
     representations = {
         types.FrameType: frame,
         types.MethodType: instancemethod,
-        types.InstanceType: instance
+        types.InstanceType: instance,
+        types.ClassType: classobj,
     }
 
     res = ""
