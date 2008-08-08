@@ -64,15 +64,15 @@ class TrackerTest(unittest.TestCase):
         # providing summary2 without summary1 should raise an exception
         self.assertRaises(ValueError, stracker.diff, summary2=sn2)
 
-    def test_stracker_for_leaks_in_tracker(self):
-        """Test if any operations of the tracker leak memory."""
-
-        # test create_summary
-        tmp_tracker = tracker.SummaryTracker()
-        # XXX: TODO
+#    def test_stracker_for_leaks_in_tracker(self):
+#        """Test if any operations of the tracker leak memory."""
+#        
+#        # test create_summary
+#        tmp_tracker = tracker.SummaryTracker()
+#        # XXX: TODO
 #        self.assert_(muppy.get_usage(tmp_tracker.create_summary) == None)
 #        self.assert_(muppy.get_usage(tmp_tracker.store_summary, 1) == None)
-        # test print_diff
+#        # test print_diff
 #        self.assert_(muppy.get_usage(tmp_tracker.print_diff, [], []) == None)
         
     def test_stracker_create_summary(self):
