@@ -127,7 +127,7 @@ def get_referents(object, level=1):
     res = _remove_duplicates(res)
     return res
 
-def get_usage(function, *args):
+def _get_usage(function, *args):
     """Test if more memory is used after the function has been called.
 
     The function will be invoked twice and only the second measurement will be
@@ -137,6 +137,9 @@ def get_usage(function, *args):
 
     Any arguments next to the function will be passed on to the function
     on invocation.
+
+    Note that this function is currently experimental, because it is not
+    tested thoroughly and performs poorly.
     
     """
     # The usage of a function is calculated by creating one summary of all

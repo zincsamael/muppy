@@ -115,36 +115,38 @@ class MuppyTest(unittest.TestCase):
 
         self.assertEqual(muppy.get_size(list), expected)
 
-    def test_get_usage(self):
-        """Check that the return value reflects changes to the memory usage.
-
-        For functions which leave the memory unchanged a None should be
-        returned.
-
-        Parameters of the function should be forwarded correctly.
-        """
-        # we need to pull some tricks here, since parsing the code, static
-        # objects are already created, e.g. parsing "a = 'some text'" will
-        # already create a string object for 'some text'. So we compute the
-        # values to use dynamically.
-        
-        # check that no increase in memory usage returns None
-        a = 1
-        b = 2
-        c = 3
-        d = 4
-        e = 1
-        def function(): pass
-        expected = None
-        # XXX: Fix get_usage tests.
-#        res = muppy.get_usage(function)
+        # do to the poor performance excluded from tests, for now
+#    def test_get_usage(self):
+#        """Check that the return value reflects changes to the memory usage.
+#
+#        For functions which leave the memory unchanged a None should be
+#        returned.
+#
+#        Parameters of the function should be forwarded correctly.
+#        """
+#        
+#        # we need to pull some tricks here, since parsing the code, static
+#        # objects are already created, e.g. parsing "a = 'some text'" will
+#        # already create a string object for 'some text'. So we compute the
+#        # values to use dynamically.
+#        
+#        # check that no increase in memory usage returns None
+#        a = 1
+#        b = 2
+#        c = 3
+#        d = 4
+#        e = 1
+#        def function(): pass
+#        expected = None
+#        # XXX: Fix get_usage tests.
+#        res = muppy._get_usage(function)
 #        print res
 #        self.assertEqual(res, expected)
-        # passing of parameter should also work
+#        # passing of parameter should also work
 #        def function(arg):
 #            a = arg
 #        expected = None
-#        res = muppy.get_usage(function, 42)
+#        res = muppy._get_usage(function, 42)
 #        self.assertEqual(res, expected)
 #        # memory leaks should be indicated
 #        def function():
@@ -152,7 +154,7 @@ class MuppyTest(unittest.TestCase):
 #                muppy.extra_var.append(1)
 #            except AttributeError:
 #                muppy.extra_var = []
-#        res = muppy.get_usage(function)
+#        res = muppy._get_usage(function)
 #        self.assert_(res is not None)
 
     def test_is_containerobject(self):
