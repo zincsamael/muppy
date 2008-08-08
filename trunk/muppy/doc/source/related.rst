@@ -54,7 +54,7 @@ PySizer
 
 PySizer was a Google Summer of Code 2005 project by Nick Smallbone. It relies on
 the garbage collector to gather information about existing objects. The
-developer can take a snapshot of the current set of objects and then analyze the
+developer can create a summary of the current set of objects and then analyze the
 extracted data. It is possible to group objects by criteria like object type and
 apply filtering mechanisms to the sets of objects.  Using a patched CPython
 version it is also possible to find out where in the code a certain object was

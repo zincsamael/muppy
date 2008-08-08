@@ -122,8 +122,8 @@ muppy's tracker.
                                int |          39 |          936
 
 A tracker object creates a summary (that is a summary which it will remember)
-on initialization. Now whenever you call tracker.print_diff(), a new snapshot of
-the current state is created, compared to the previous snapshot and printed to
+on initialization. Now whenever you call tracker.print_diff(), a new summary of
+the current state is created, compared to the previous summary and printed to
 the console. As you can see here, quite a few objects got in between these two
 invocations. 
 But if you don't do anything, nothing will change.
