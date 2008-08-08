@@ -23,7 +23,7 @@ output like the	following:
 
 Another advantage of summaries is that they influence the system you analyze
 only to a minimum. Working with references to existing objects will keep these
-objects alive. Most of the times this is no desires behavior (as it will have
+objects alive. Most of the times this is no desired behavior (as it will have
 an impact on the observations). Using summaries reduces this effect greatly.
 
 """
