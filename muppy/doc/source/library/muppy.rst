@@ -21,5 +21,4 @@ Functions
  
    .. autofunction:: get_referents
  
-   .. autofunction:: get_usage
  
