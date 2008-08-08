@@ -1,16 +1,22 @@
+=================================
 Welcome to muppy's documentation!
 =================================
 
-Welcome to the documentation of muppy, (yet another) memory usage profiler for
-Python.
+*Welcome to the documentation of muppy, (yet another) memory usage profiler for
+Python.*
 
 Muppy tries to help developers to identity memory leaks of Python
 applications. It enables the tracking of memory usage during runtime and the
 identification of objects which are leaking. Additionally, tools are provided which
 allow to locate the source of not released objects.
 
+**Download muppy**: http://pypi.python.org/pypi/muppy
+
+If you would like to report a bug, ask for new features, or interact with the
+muppy developers please visit the developer website at http://muppy.googlecode.com. 
+
 Table of Content
-----------------
+================
 - :ref:`intro` - If you are new to muppy, the introduction is a good place to
   start.
 - :ref:`remarks` - If you are new to memory profiling, have a look at the
@@ -23,23 +29,15 @@ Table of Content
 - :ref:`glossary` - A few basic terms used throughout the documentation.
 - :ref:`copyright` - Last but not least ..
   
-Indices and tables
-------------------
+Also available are
 
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
 
-A Detailed Table of Content
----------------------------
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
-   intro
-   remarks
-   tutorial
-   library/library
-   related
-   glossary
-   copyright
+   detailed_toc
+
 
