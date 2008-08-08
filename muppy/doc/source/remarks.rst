@@ -23,7 +23,7 @@ Only Python
 -----------
   
 Memory profiling of Python applications can take place on several levels.  For
-one, the Python code itself can be the cause for a memory leak. But also other
+one, the Python code itself can be the cause for a problem. But also other
 possibilities should be considered. Python itself is written in C, Java, or
 possibly C# (even more are possible). Also, modules used may be written in C
 (c_api_) or make use of third party software (tkinter_). Thus, an unusual memory
@@ -54,8 +54,8 @@ approach for monitoring that app.
 
 To deal with this problem you can use the :mod:`summary` module. Often it is
 sufficient to work with aggregated data instead of handling the entire set of
-existing objects. You can identify a memory leak based only on the number and
-size of existing objects.
+existing objects. You can recognize a memory leak based only on the number and
+size of existing objects, you don't need every single leaking object for this.
 
 Garbage Collection
 ------------------

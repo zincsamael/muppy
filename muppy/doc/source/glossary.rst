@@ -10,19 +10,15 @@ Glossary
 
   ``muppy``
 	An acronym for Memory Usage Profiler for Python. Also the name of this
-	tool set. 
-
-  ``snapshot``
-	A snapshot is summary which was taken at a specific time. It is used
-	in the context of the tracker (see :ref:`tracker_module`).
+	tool set.
 
   ``summary``
-	A summary contains information about objects in a table-like manner.
-	Technically, it is a list of lists. Each of these lists represents a
-	row, whereas the first column reflects the object type, the second
-	column the number of objects, and the third column the size of all
-	these objects. This allows a simple table-like output like the
-	following:
+  	A summary contains information about objects in a summarized format.
+	Instead of having data of every object, information are grouped by
+	object type. Each object type is represented by a row, whereas the first
+	column reflects the object type, the second column the number of
+	objects of this type, and the third column the size of all of these
+  	objects. The output looks like the following:
 
 	=============  ============  =============
 	       types     # objects     total size
