@@ -7,8 +7,8 @@ Library
 Muppy works with the `sys.getsizeof` (see sys_) function which was added in
 Python 2.6. Thus you will need Python 2.6 or higher.
 
-Some functions work on the entire object set. Expect some time-intensive
-computations.
+Some functions of the library work on the entire object set of your running
+Python application. Expect some time-intensive computations.
 
 It was also considered to make use of the weak reference feature (see weakref_)
 available in Python. But since it is not possible to use weak refs on many types

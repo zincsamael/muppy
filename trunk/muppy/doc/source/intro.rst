@@ -5,9 +5,8 @@ Intro
 =====
 
 Muppy is (yet another) Memory Usage Profiler for Python. The focus of this
-toolset is laid on the identification of memory leaks. Other tools
-(:ref:`Related_Work`) have other focuses. Let's have a look what you can do with
-muppy. 
+toolset is laid on the identification of memory leaks. Let's have a look what
+you can do with muppy.
 
 The muppy module
 ================
@@ -122,7 +121,7 @@ muppy's tracker.
                  getset_descriptor |          17 |         1224
                                int |          39 |          936
 
-A tracker object creates a snapshot (that is a summary which it will remember)
+A tracker object creates a summary (that is a summary which it will remember)
 on initialization. Now whenever you call tracker.print_diff(), a new snapshot of
 the current state is created, compared to the previous snapshot and printed to
 the console. As you can see here, quite a few objects got in between these two
@@ -145,8 +144,9 @@ Now check out this code snippet
    list |           1 |          224
 
 As you can see both, the new list and the new dict appear in the summary, but
-not the 4 integers used. Why is that? Because they existed already before the
-where used here. 
+not the 4 integers used. Why is that? Because they existed already before they
+were used here, that is some other part in the Python interpreter code makes
+already use of them. Thus, they are not new.
 
 The refbrowser module
 =====================
@@ -161,10 +161,10 @@ list.
 >>> root_ref1 = [root]
 >>> root_ref2 = (root, )
 
->>> def str_func(o):
+>>> def output_function(o):
 ...     return str(type(o))
 ...
->>> cb = refbrowser.ConsoleBrowser(root, maxdepth=2, str_func=str_func)
+>>> cb = refbrowser.ConsoleBrowser(root, maxdepth=2, str_func=output_function)
 
 Then we create a ConsoleBrowser, which will give us a referrers tree starting at
 `root`, printing to a maximum depth of 2, and uses `str_func` to represent
@@ -190,7 +190,8 @@ objects. Now it's time to see where we are at.
              +-<type 'dict'>--<class 'muppy.refbrowser.ConsoleBrowser'>
 
 What we see is that the root object is referenced by the tuple and the list, as
-well as by three dictionaries.
+well as by three dictionaries. These dictionaries belong to the environment,
+e.g. the ConsoleBrowser we just started and the current execution context.
 
 This console browsing is of course kind of inconvenient. Much better would be an
 InteractiveBrowser. Let's see what we got.

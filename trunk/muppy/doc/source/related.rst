@@ -45,7 +45,7 @@ Python Memory Validator
 -----------------------
 
 A commercial Python memory validator which uses the Python Reflection
-API. Further details are unknown.
+API.
 
 URL: http://www.softwareverify.com/python/memory/index.html
 
@@ -67,7 +67,7 @@ URL: http://pysizer.8325.org/
 Support Tracking Low-Level Memory Usage in CPython
 --------------------------------------------------
 
-This is a experimental implementation of CPython-level memory tracking by Brett
+This is an experimental implementation of CPython-level memory tracking by Brett
 Cannon. Done in 2006, it tackles the problem at the core,
 the CPython interpreter itself. To trace the memory usage he suggests to tag
 every memory allocation and de-allocation. All actions involving memory take a

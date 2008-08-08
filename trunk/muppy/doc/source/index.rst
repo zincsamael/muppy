@@ -6,7 +6,7 @@ Python.
 
 Muppy tries to help developers to identity memory leaks of Python
 applications. It enables the tracking of memory usage during runtime and the
-identification of objects which are leaking. Also, tools are provided which
+identification of objects which are leaking. Additionally, tools are provided which
 allow to locate the source of not released objects.
 
 Table of Content
@@ -20,7 +20,7 @@ Table of Content
 - :ref:`related_work` - Other projects which deal which memory profiling in
   Python are mentioned in the this section.
 - :ref:`library` - All the tools provided by muppy.
-- :ref:`glossary` - A few basic terms used throughout th documentation.
+- :ref:`glossary` - A few basic terms used throughout the documentation.
 - :ref:`copyright` - Last but not least ..
   
 Indices and tables
