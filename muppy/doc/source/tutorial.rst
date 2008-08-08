@@ -175,8 +175,8 @@ called `_tclCommands`.
 
 This brings us to the third question. 
 
-3. Where is the leak?
-----------------------
+Task 3: Where is the leak?
+--------------------------
 `_tclCommands` stores the names of all commands linked to a widget. The base
 class for interior widgets (of which the menu is one), has a method called
 `destroy` which::

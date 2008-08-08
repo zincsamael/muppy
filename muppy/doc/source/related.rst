@@ -79,6 +79,3 @@ amount of memory being used by the type" are available.
 
 URL: http://svn.python.org/projects/python/branches/bcannon-sandboxing/PEP.txt
 
-ToDo
-----
-- integrate notes from proposal and wiki
