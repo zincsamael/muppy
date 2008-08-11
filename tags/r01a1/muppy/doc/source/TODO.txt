@@ -1,0 +1,15 @@
+- decide on general documentation layout
+  - content (toc of entries listed below)
+  - remarks on memory profiling
+  - how to/tutorial
+    - IDLE
+    - trac
+  - ToDo's
+  - copyright
+  - Changes (just one file)
+    - release
+      - new features
+      - bugs fixed
+  - (glossary)  
+
+- what about API docs?
