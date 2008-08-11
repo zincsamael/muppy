@@ -6,8 +6,8 @@ Related Work
 
 Muppy is just one among several approaches toward memory profiling of Python
 applications. This page lists other known tools. If you know yet another one or
-find the description is not correct you can drop a mail at (XXX:insert
-muppy-mail-address).
+find the description is not correct you can create a new issue at
+http://code.google.com/p/muppy/issues.
 
 .. _asizeof:
 
