@@ -10,10 +10,14 @@ applications. It enables the tracking of memory usage during runtime and the
 identification of objects which are leaking. Additionally, tools are provided which
 allow to locate the source of not released objects.
 
+For the ones how are looking for quick links, here are some.
+
 **Download muppy**: http://pypi.python.org/pypi/muppy
 
-If you would like to report a bug, ask for new features, or interact with the
-muppy developers please visit the developer website at http://muppy.googlecode.com. 
+**File a bug report**: http://code.google.com/p/muppy/issue
+
+**Check out repository**: http://code.google.com/p/muppy/source
+
 
 Table of Content
 ================
