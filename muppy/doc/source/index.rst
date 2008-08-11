@@ -16,7 +16,7 @@ For the ones how are looking for quick links, here are some.
 
 **File a bug report**: http://code.google.com/p/muppy/issue
 
-**Check out repository**: http://code.google.com/p/muppy/source
+**Check out repository**: http://code.google.com/p/muppy/source/checkout
 
 
 Table of Content
