@@ -860,7 +860,7 @@ class PyShell(OutputWindow):
         #
         self.pollinterval = 50  # millisec
         # memory profiling
-        self.memory_tracker = tracker.SummaryTracker()
+        self.memory_tracker = tracker.tracker()
 
     def get_standard_extension_names(self):
         return idleConf.GetExtensions(shell_only=True)

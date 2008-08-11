@@ -9,7 +9,13 @@ from distutils.core import setup
 import os
 import shutil
 
-import metadata
+_version = '0.1'
+
+_description = '(Yet another) memory usage profiler for Python.'
+_long_description = 'Muppy tries to help developers to identity memory leaks of Python ' +\
+'applications. It enables the tracking of memory usage during runtime and the ' +\
+'identification of objects which are leaking. Also, tools are provided which ' +\
+'allow to locate the source of not released objects.'
 
 doc_dir = 'doc'
 compiled_doc_dir = os.path.join(doc_dir, 'build', 'html')
@@ -50,19 +56,19 @@ def del_copied_docs(files):
             raise ValueError, file + " is neither file nor directory"
 
 def run_setup():
-    setup(name=metadata.project_name,
-          description=metadata.description,
-          long_description = metadata.long_description,
+    setup(name='muppy',
+          description=_description,
+          long_description = _long_description,
 
-          author=metadata.author,
-          author_email=metadata.author_email,
-          url=metadata.url,
-          version=metadata.version,
+          author='Robert Schuppenies',
+          author_email='robert.schuppenies@gmail.com',
+          url='http://pypi.python.org/pypi/muppy/' + _version,
+          version=_version,
 
           packages=['muppy'],
           package_dir = {'muppy':'.'},
           
-          license=metadata.license,
+          license='Apache License, Version 2.0',
           platforms = ['any'],
           classifiers=['Development Status :: 3 - Alpha',
                        'Environment :: Console',

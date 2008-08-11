@@ -9,17 +9,10 @@ tracker
 Classes
 -------
 
-   .. autoclass:: SummaryTracker
+   .. autoclass:: tracker
  
 	.. automethod:: diff
 
 	.. automethod:: print_diff
 
-	.. automethod:: store_summary
-
-   .. autoclass:: ObjectTracker
- 
-	.. automethod:: get_diff
-
-	.. automethod:: print_diff
-
+	.. automethod:: store_snapshot

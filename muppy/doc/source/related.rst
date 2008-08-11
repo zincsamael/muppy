@@ -6,20 +6,17 @@ Related Work
 
 Muppy is just one among several approaches toward memory profiling of Python
 applications. This page lists other known tools. If you know yet another one or
-find the description is not correct you can create a new issue at
-http://code.google.com/p/muppy/issues.
+find the description is not correct you can drop a mail at (XXX:insert
+muppy-mail-address).
 
-.. _asizeof:
-
-asizeof
--------
+Size of Python objects
+----------------------
 
 A Python-level implementation to estimate the size of objects by Jean
-Brouwers. This implementation has been published on
-aspn.activestate.com. It is possible to determine the size of an
-object and its referents recursively up to a specified level. asizeof of is
-distributed with muppy and allows the usage of muppy with Python versions prior
-to Python 2.6.
+Brouwers. This implementation has been published just recently on
+aspn.activestate.com and uses the same method to determine the
+object size as PySizer and Heapy. It is possible to determine the size of an
+object and its referents recursively up to a specified level.
 
 URL: http://code.activestate.com/recipes/546530/
 
@@ -48,7 +45,7 @@ Python Memory Validator
 -----------------------
 
 A commercial Python memory validator which uses the Python Reflection
-API.
+API. Further details are unknown.
 
 URL: http://www.softwareverify.com/python/memory/index.html
 
@@ -57,7 +54,7 @@ PySizer
 
 PySizer was a Google Summer of Code 2005 project by Nick Smallbone. It relies on
 the garbage collector to gather information about existing objects. The
-developer can create a summary of the current set of objects and then analyze the
+developer can take a snapshot of the current set of objects and then analyze the
 extracted data. It is possible to group objects by criteria like object type and
 apply filtering mechanisms to the sets of objects.  Using a patched CPython
 version it is also possible to find out where in the code a certain object was
@@ -70,7 +67,7 @@ URL: http://pysizer.8325.org/
 Support Tracking Low-Level Memory Usage in CPython
 --------------------------------------------------
 
-This is an experimental implementation of CPython-level memory tracking by Brett
+This is a experimental implementation of CPython-level memory tracking by Brett
 Cannon. Done in 2006, it tackles the problem at the core,
 the CPython interpreter itself. To trace the memory usage he suggests to tag
 every memory allocation and de-allocation. All actions involving memory take a
@@ -82,3 +79,6 @@ amount of memory being used by the type" are available.
 
 URL: http://svn.python.org/projects/python/branches/bcannon-sandboxing/PEP.txt
 
+ToDo
+----
+- integrate notes from proposal and wiki

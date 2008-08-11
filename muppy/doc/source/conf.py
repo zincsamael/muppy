@@ -14,8 +14,6 @@
 import sys, os
 
 sys.path.append('..')
-sys.path.append(os.path.join('..', '..'))
-import metadata
 
 
 # If your extensions are in another directory, add it here. If the directory
@@ -40,8 +38,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General substitutions.
-project = metadata.project_name
-copyright = metadata.copyright
+project = 'muppy, a Memory Usage Profiler for Python'
+copyright = '2008, Robert Schuppenies'
 
 # The default replacements for |version| and |release|, also used in various
 # other places throughout the built documents.
@@ -162,7 +160,7 @@ htmlhelp_basename = 'MUPPydoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, document class [howto/manual]).
 latex_documents = [
-  ('index', 'MUPPy.tex', metadata.project_name + ' Documentation', metadata.author, 'manual'),
+  ('index', 'MUPPy.tex', 'MUPPy Documentation', 'Robert Schuppenies', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of

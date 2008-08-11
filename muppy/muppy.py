@@ -1,13 +1,7 @@
 import gc
+import sys
 
 import summary
-
-# default to asizeof if sys.getsizeof is not available (prior to Python 2.6)
-try:
-    from sys import getsizeof
-except ImportError:
-    import asizeof
-    getsizeof = asizeof.flatsize
 
 __TPFLAGS_HAVE_GC = 1<<14
 
@@ -39,7 +33,7 @@ def get_size(objects):
     res = 0
     for o in objects:
         try:
-            res += getsizeof(o)
+            res += sys.getsizeof(o)
         except AttributeError:
             print "IGNORING: type=%s; o=%s" % (str(type(o)), str(o))
     return res
@@ -53,42 +47,13 @@ def get_diff(left, right):
 
     """
     res = {'+': [], '-': []}
-
-    def partition(objects):
-        """Partition the passed object list."""
-        res = {}
-        for o in objects:
-            t = type(o)
-            if type(o) not in res:
-                res[t] = []
-            res[t].append(o)
-        return res
-
-    def get_not_included(foo, bar):
-        """Compare objects from foo with objects defined in the values of
-        bar (set of partitions).
-        Returns a list of all objects included in list, but not dict values.
-        """
-        res = []
-        for o in foo:
-            if type(o) not in bar:
-                res.append(o)
-            elif o not in bar[type(o)]:
-                res.append(o)
-        return res
-        
-    # Create partitions of both lists. This will reduce the time required for
-    # the comparison
-    left_objects = partition(left)
-    right_objects = partition(right)
-    # and then do the diff
-    res['+'] = get_not_included(right, left_objects)
-    res['-'] = get_not_included(left, right_objects)
+    res['+'] = [o for o in right if o not in left]
+    res['-'] = [o for o in left if o not in right]
     return res
 
 def sort(objects):
     """Sort objects by size in bytes."""
-    objects.sort(lambda x, y: getsizeof(x) - getsizeof(y))
+    objects.sort(lambda x, y: sys.getsizeof(x) - sys.getsizeof(y))
     return objects
     
 def filter(objects, Type=None, min=-1, max=-1):
@@ -108,9 +73,9 @@ def filter(objects, Type=None, min=-1, max=-1):
     if Type is not None:
         [res.append(o) for o in objects if isinstance(o, Type)]
     if min > -1:
-        [res.remove(o) for o in res if getsizeof(o) < min]
+        [res.remove(o) for o in res if sys.getsizeof(o) < min]
     if max > -1:
-        [res.append(o) for o in res if getsizeof(o) > max]
+        [res.append(o) for o in res if sys.getsizeof(o) > max]
     return res
 
 def get_referents(object, level=1):
@@ -133,7 +98,7 @@ def get_referents(object, level=1):
     res = _remove_duplicates(res)
     return res
 
-def _get_usage(function, *args):
+def get_usage(function, *args):
     """Test if more memory is used after the function has been called.
 
     The function will be invoked twice and only the second measurement will be
@@ -143,9 +108,6 @@ def _get_usage(function, *args):
 
     Any arguments next to the function will be passed on to the function
     on invocation.
-
-    Note that this function is currently experimental, because it is not
-    tested thoroughly and performs poorly.
     
     """
     # The usage of a function is calculated by creating one summary of all

@@ -35,12 +35,11 @@ Preparations
 ------------
 IDLE is part of every Python distribution and can be found at
 :file:`Lib/idlelib`. The modified version which makes use of muppy can be found
-at http://code.google.com/p/muppy/source/browse/trunk#trunk/playground/idlelib.
+at XXX:TODO.
 
 With IDLE having a GUI, I also wanted to be able to interact with muppy through
 the GUI. This can be done in :file:`Lib/idlelib/Bindings.py` and
-:file:`Lib/idlelib/PyShell.py`. For details, please refer to the modified
-version mentioned above. 
+:file:`Lib/idlelib/PyShell.py`. 
 
 Task 1: Is there a leak?
 ------------------------
@@ -130,8 +129,8 @@ bit more memory usage by `lists`, 3 `wakeup` and `__call__` instance methods, 3
 `CallWrapper` and 1 `ListedToplevel`. We know the standard types, but the last
 couple of objects seem to be from IDLE. 
 
-We ignore the standard type objects for now. It is more likely that these are
-only children of some other instances which are causing the leak.
+We ignore the standard type objects for now. It is likely that these are only
+children of some other instances which are causing the leak.
 
 We start with the `ListedTopLevel` object. One invocation of `File->Path
 Browser` and one more of this type looks like this object is not garbage
@@ -168,15 +167,14 @@ which then creates a command (Tk speak) and adds it's name to a list called
 
 So what do we know so far? Every time a Path Browser is opened, a window is
 created, but not deleted when closed again. It has something to do with the
-`wakeup` method of the window. This method is wrapped as a Tcl command and then
-linked to the window list menu. Also, we have traced this wrapping back to
-Tkinter library, where names of the function wrappers are stored in a attribute
-called `_tclCommands`.
+`wakeup` method of the window, which is being wrapped as a command and linked to
+the window list menu. Also, we have traced this wrapping back to Tkinter, where
+names of the function wrappers are stored in a attribute called `_tclCommands`.
 
 This brings us to the third question. 
 
-Task 3: Where is the leak?
---------------------------
+3. Where is the leak?
+----------------------
 `_tclCommands` stores the names of all commands linked to a widget. The base
 class for interior widgets (of which the menu is one), has a method called
 `destroy` which::
@@ -188,11 +186,10 @@ as well as a method `deletecommand` which deletes a single Tcl command. Both
 remove commands as by there name. Among them, we find our CallWrappers'
 `__call__` used to wrap the wakeup of the Path Browser window.
 
-So we should expect at least either one to be invoked when a window is closed
-(best would be the invocation of only deletecommand). This would also go in line
-with `menu.add_command` we identified :ref:`above<menu_add_command>`. And
-indeed, in `idlelib/EditorWindow.py`, `menu.delete` is called. So where is the
-problem?
+So we should expect at least either one or better deletecommand to be invoked
+when a window is closed. This would also go in line with `menu.add_command` we
+identified :ref:`above<menu_add_command>`. And indeed, in
+`idlelib/EditorWindow.py`, `menu.delete` is called. So where is the problem?
 
 We return to `Tkinter.py` and have a closer look at `delete` method::
 
