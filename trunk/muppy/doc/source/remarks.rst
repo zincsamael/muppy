@@ -74,7 +74,7 @@ the current object state.
 .. code-block:: python
 
    import gc
-   	 gc.collect()
+   	gc.collect()
 
 
 .. _c_api: http://docs.python.org/api/api.html
