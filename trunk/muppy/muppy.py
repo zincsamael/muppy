@@ -1,7 +1,13 @@
 import gc
-import sys
 
 import summary
+
+# default to asizeof if sys.getsizeof is not available (prior to Python 2.6)
+try:
+    from sys import getsizeof
+except ImportError:
+    import asizeof
+    getsizeof = asizeof.flatsize
 
 __TPFLAGS_HAVE_GC = 1<<14
 
@@ -33,7 +39,7 @@ def get_size(objects):
     res = 0
     for o in objects:
         try:
-            res += sys.getsizeof(o)
+            res += getsizeof(o)
         except AttributeError:
             print "IGNORING: type=%s; o=%s" % (str(type(o)), str(o))
     return res
@@ -82,7 +88,7 @@ def get_diff(left, right):
 
 def sort(objects):
     """Sort objects by size in bytes."""
-    objects.sort(lambda x, y: sys.getsizeof(x) - sys.getsizeof(y))
+    objects.sort(lambda x, y: getsizeof(x) - getsizeof(y))
     return objects
     
 def filter(objects, Type=None, min=-1, max=-1):
@@ -102,9 +108,9 @@ def filter(objects, Type=None, min=-1, max=-1):
     if Type is not None:
         [res.append(o) for o in objects if isinstance(o, Type)]
     if min > -1:
-        [res.remove(o) for o in res if sys.getsizeof(o) < min]
+        [res.remove(o) for o in res if getsizeof(o) < min]
     if max > -1:
-        [res.append(o) for o in res if sys.getsizeof(o) > max]
+        [res.append(o) for o in res if getsizeof(o) > max]
     return res
 
 def get_referents(object, level=1):

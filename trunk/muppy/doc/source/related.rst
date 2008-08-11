@@ -9,14 +9,17 @@ applications. This page lists other known tools. If you know yet another one or
 find the description is not correct you can drop a mail at (XXX:insert
 muppy-mail-address).
 
-Size of Python objects
-----------------------
+.. _asizeof:
+
+asizeof
+-------
 
 A Python-level implementation to estimate the size of objects by Jean
-Brouwers. This implementation has been published just recently on
-aspn.activestate.com and uses the same method to determine the
-object size as PySizer and Heapy. It is possible to determine the size of an
-object and its referents recursively up to a specified level.
+Brouwers. This implementation has been published on
+aspn.activestate.com. It is possible to determine the size of an
+object and its referents recursively up to a specified level. asizeof of is
+distributed with muppy and allows the usage of muppy with Python versions prior
+to Python 2.6.
 
 URL: http://code.activestate.com/recipes/546530/
 
