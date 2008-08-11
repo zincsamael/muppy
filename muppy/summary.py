@@ -26,12 +26,83 @@ only to a minimum. Working with references to existing objects will keep these
 objects alive. Most of the times this is no desired behavior (as it will have
 an impact on the observations). Using summaries reduces this effect greatly.
 
+output representation
+---------------------
+
+The output representation of types is defined in summary.representations.
+Every type defined in this dictionary will be represented as specified. Each
+definition has a list of different representations. The later a representation
+appears in this list, the higher its verbosity level. From types which are not
+defined in summary.representations the default str() representation will be
+used.
+
+Per default, summaries will use the verbosity level 1 for any encountered type.
+The reason is that several computations are done with summaries and rows have to
+remain comparable. Therefore information which reflect an objects state,
+e.g. the current line number of a frame, should not be included. You may add
+more detailed information at higher verbosity levels than 1.
 """
 
 import re
 import string
 import sys
 import types
+
+representations = {}
+def init_representations():
+    global representations
+    frame = [
+        lambda f: "frame (codename: %s)" %\
+                   (f.f_code.co_name),
+        lambda f: "frame (codename: %s, codeline: %s)" %\
+                   (f.f_code.co_name, f.f_code.co_firstlineno),
+        lambda f: "frame (codename: %s, filename: %s, codeline: %s)" %\
+                   (f.f_code.co_name, f.f_code.co_filename,\
+                    f.f_code.co_firstlineno)
+    ]
+    classobj = [
+        lambda c: "classobj(%s)" % repr(c),
+    ]
+    _dict = [
+        lambda d: str(type(d)),
+        lambda d: "dict, len=%s" % len(d),
+    ]
+    function = [
+        lambda f: "function (%s)" % f.__name__,
+        lambda f: "function (%s.%s)" % (f.__module, f.__name__),
+    ]
+    instance = [
+        lambda f: "instance(%s)" % repr(f.__class__),
+    ]
+    instancemethod = [
+        lambda i: "instancemethod (%s)" %\
+                                  (repr(i.im_func)),
+        lambda i: "instancemethod (%s, %s)" %\
+                                  (repr(i.im_class), repr(i.im_func)),
+    ]
+    _list = [
+        lambda l: str(type(l)),
+        lambda l: "list, len=%s" % len(l)
+    ]
+    module = [ lambda m: "module(%s)" % m.__name__ ]
+    _set = [
+        lambda s: str(type(s)),
+        lambda s: "set, len=%s" % len(s)
+    ]
+    
+    representations = {
+        types.ClassType: classobj,
+        dict: _dict,
+        types.FunctionType: function,
+        types.FrameType: frame,
+        types.InstanceType: instance,
+        list: _list,
+        types.MethodType: instancemethod,
+        types.ModuleType: module,
+        set: _set,
+    }
+
+init_representations()
 
 def summarize(objects):
     """Summarize an objects list.
@@ -147,6 +218,12 @@ def _print_table(rows, header=True):
         print vdelim.join([justify(str(item),width) for (item,width) in zip(row,colWidths)])
         if header: print borderline; header=False
 
+        
+# regular expressions used by _repr to replace default type representations
+type_prefix = re.compile(r"^<type '")
+address = re.compile(r' at 0x[0-9a-f]+')
+type_suffix = re.compile(r"'>$")
+
 def _repr(o, verbosity=1):
     """Get meaning object representation.
 
@@ -158,74 +235,6 @@ def _repr(o, verbosity=1):
     verbosity -- if True the first row is treated as a table header
 
     """
-    # Following are various outputs for different types which may be interesting
-    # during memory profiling.  The later they appear in a list, the higher the
-    # verbosity should be.
-    #
-    # Because some computations are done with the rows of summaries, these rows
-    # have to remain comparable. Therefore information which reflect an objects
-    # state, e.g. the current line number of a frame, should not be returned
-    # Summaries will only build with verbosity level 1. You may add more
-    # detailed information at higher verbosity levels.
-
-    # regular expressions replaced in return value
-    type_prefix = re.compile(r"^<type '")
-    address = re.compile(r' at 0x[0-9a-f]+')
-    type_suffix = re.compile(r"'>$")
-
-    # XXX: move the output definitions to a more general place
-    #      they should be modifiable by the user
-    frame = [
-        lambda f: "frame (codename: %s)" %\
-                   (f.f_code.co_name),
-        lambda f: "frame (codename: %s, codeline: %s)" %\
-                   (f.f_code.co_name, f.f_code.co_firstlineno),
-        lambda f: "frame (codename: %s, filename: %s, codeline: %s)" %\
-                   (f.f_code.co_name, f.f_code.co_filename,\
-                    f.f_code.co_firstlineno)
-    ]
-    classobj = [
-        lambda x: "classobj(%s)" % repr(o),
-    ]
-    _dict = [
-        lambda x: str(type(x)),
-        lambda x: "dict, len=%s" % len(x),
-    ]
-    function = [
-        lambda x: "function (%s)" % x.__name__,
-        lambda x: "function (%s.%s)" % (x.__module, x.__name__),
-    ]
-    instance = [
-        lambda x: "instance(%s)" % repr(o.__class__),
-    ]
-    instancemethod = [
-        lambda x: "instancemethod (%s)" %\
-                                  (repr(x.im_func)),
-        lambda x: "instancemethod (%s, %s)" %\
-                                  (repr(x.im_class), repr(x.im_func)),
-    ]
-    _list = [
-        lambda x: str(type(x)),
-        lambda x: "list, len=%s" % len(x)
-    ]
-    module = [ lambda x: "module(%s)" % x.__name__ ]
-    _set = [
-        lambda x: str(type(x)),
-        lambda x: "set, len=%s" % len(x)
-    ]
-    
-    representations = {
-        types.ClassType: classobj,
-        dict: _dict,
-        types.FunctionType: function,
-        types.FrameType: frame,
-        types.InstanceType: instance,
-        list: _list,
-        types.MethodType: instancemethod,
-        types.ModuleType: module,
-        set: _set,
-    }
-
     res = ""
     
     t = type(o)
