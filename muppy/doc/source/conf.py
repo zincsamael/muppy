@@ -13,9 +13,9 @@
 
 import sys, os
 
-sys.path.append('..')
 sys.path.append(os.path.join('..', '..'))
-import metadata
+sys.path.append(os.path.join('..', 'muppy'))
+from muppy import metadata
 
 
 # If your extensions are in another directory, add it here. If the directory
