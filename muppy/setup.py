@@ -59,9 +59,8 @@ def run_setup():
           url=metadata.url,
           version=metadata.version,
 
-          packages=['muppy'],
+          packages=['muppy', 'utils'],
           package_dir = {'muppy':'.'},
-          py_modules = ['asizeof'],
           
           license=metadata.license,
           platforms = ['any'],
