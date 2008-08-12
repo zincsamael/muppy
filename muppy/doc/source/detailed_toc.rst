@@ -11,4 +11,5 @@ Below you can find a complete overview of all pages of this documentation.
    library/library
    related
    glossary
+   changes
    copyright

@@ -31,6 +31,7 @@ Table of Content
   Python are mentioned in the this section.
 - :ref:`library` - All the tools provided by muppy.
 - :ref:`glossary` - A few basic terms used throughout the documentation.
+- :ref:`changes` - Changes in muppy.
 - :ref:`copyright` - Last but not least ..
   
 Also available are
