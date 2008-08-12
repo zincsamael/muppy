@@ -61,6 +61,7 @@ def run_setup():
 
           packages=['muppy'],
           package_dir = {'muppy':'.'},
+          py_modules = ['asizeof'],
           
           license=metadata.license,
           platforms = ['any'],
