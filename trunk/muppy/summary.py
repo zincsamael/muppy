@@ -51,7 +51,7 @@ import types
 try:
     from sys import getsizeof
 except ImportError:
-    import asizeof
+    from utils import asizeof
     getsizeof = asizeof.flatsize
 
 representations = {}

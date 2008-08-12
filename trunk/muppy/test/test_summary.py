@@ -8,7 +8,7 @@ from muppy import summary
 try:
     from sys import getsizeof
 except ImportError:
-    from muppy import asizeof
+    from muppy.utils import asizeof
     getsizeof = asizeof.flatsize
 
 class SummaryTest(unittest.TestCase):

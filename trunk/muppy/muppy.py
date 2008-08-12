@@ -6,7 +6,7 @@ import summary
 try:
     from sys import getsizeof
 except ImportError:
-    import asizeof
+    from utils import asizeof
     getsizeof = asizeof.flatsize
 
 __TPFLAGS_HAVE_GC = 1<<14
