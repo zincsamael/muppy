@@ -4,7 +4,7 @@
 refbrowser
 ==========
 
-.. automodule:: refbrowser
+.. automodule:: muppy.refbrowser
 
 Classes
 -------

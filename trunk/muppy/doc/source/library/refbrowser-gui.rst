@@ -7,7 +7,7 @@ refbrowser_gui
 Functions
 ---------
 
-.. automodule:: refbrowser_gui
+.. automodule:: muppy.refbrowser_gui
 
 Classes
 -------

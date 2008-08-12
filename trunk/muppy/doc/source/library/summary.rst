@@ -3,7 +3,7 @@
 summary
 =======
 
-.. automodule:: summary
+.. automodule:: muppy.summary
 
 
 functions

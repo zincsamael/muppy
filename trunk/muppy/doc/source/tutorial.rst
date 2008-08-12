@@ -60,65 +60,60 @@ it in the menu at `Windows->Zoom Height`.
 
 At first call `print_diff` till it has calibrated. That is, the first one or two
 times, you will get some output because there is still something going on in the
-background. But then you should get this
+background. But then you should get this::
 
->>>
- types |   # objects |   total size
-====== | =========== | ============
+  types |   # objects |   total size
+  ====== | =========== | ============
   
 Which means nothing has changed since the last invocation of `print_diff`. Now
-let's call `Windows->Zoom Height` and invoke `print_diff` again.
+let's call `Windows->Zoom Height` and invoke `print_diff` again.::
 
->>>
-             types |   # objects |   total size
-================== | =========== | ============
-              dict |           1 |          280
-              list |           1 |          176
-  _sre.SRE_Pattern |           1 |           88
-             tuple |           1 |           80
-               str |           0 |            7
+               types |   # objects |   total size
+  ================== | =========== | ============
+                dict |           1 |          280
+                list |           1 |          176
+    _sre.SRE_Pattern |           1 |           88
+               tuple |           1 |           80
+                 str |           0 |            7
 
-Seems as this requires some of the above mentioned objects. Let's repeat it.
+Seems as this requires some of the above mentioned objects. Let's repeat it.::
 
->>>
- types |   # objects |   total size
-====== | =========== | ============
+   types |   # objects |   total size
+  ====== | =========== | ============
   
 Okay, nothing changed, so nothing is leaking. But we see that often, the first
 call to a function creates some objects, which then exist on a second
 invocation.
 
 Next, we try something different. We will open a new window. Let's have a look
-at the Path Browser at `File->Path Browser`.
+at the Path Browser at `File->Path Browser`.::
 
->>>
-                                                types |   # objects |   total size
-===================================================== | =========== | ============
-                                                 dict |          18 |        14256
-                                                tuple |         146 |        13168
-                                                 list |           2 |        11672
-                                                  str |          97 |         7855
-                                                 code |          46 |         5520
-                                             function |          45 |         5400
-                                             classobj |           9 |          864
-                   instancemethod (<function wakeup>) |           3 |          240
-                 instancemethod (<function __call__>) |           3 |          240
-                instance(<class Tkinter.CallWrapper>) |           3 |          216
-                                               module |           3 |          168
-  instance(<class idlelib.WindowList.ListedToplevel>) |           1 |           72
+                                                  types |   # objects |   total size
+  ===================================================== | =========== | ============
+                                                   dict |          18 |        14256
+                                                  tuple |         146 |        13168
+                                                   list |           2 |        11672
+                                                    str |          97 |         7855
+                                                   code |          46 |         5520
+                                               function |          45 |         5400
+                                               classobj |           9 |          864
+                     instancemethod (<function wakeup>) |           3 |          240
+                   instancemethod (<function __call__>) |           3 |          240
+                  instance(<class Tkinter.CallWrapper>) |           3 |          216
+                                                 module |           3 |          168
+    instance(<class idlelib.WindowList.ListedToplevel>) |           1 |           72
 
-Let's repeat it.
+Let's repeat it.::
 
->>>
-                                                types |   # objects |   total size
-===================================================== | =========== | ============
-                                                 dict |           5 |         2168
-                                                 list |           0 |          384
-                                                  str |           5 |          259
-                   instancemethod (<function wakeup>) |           3 |          240
-                 instancemethod (<function __call__>) |           3 |          240
-                instance(<class Tkinter.CallWrapper>) |           3 |          216
-  instance(<class idlelib.WindowList.ListedToplevel>) |           1 |           72
+                                                  types |   # objects |   total size
+  ===================================================== | =========== | ============
+                                                   dict |           5 |         2168
+                                                   list |           0 |          384
+                                                    str |           5 |          259
+                     instancemethod (<function wakeup>) |           3 |          240
+                   instancemethod (<function __call__>) |           3 |          240
+                  instance(<class Tkinter.CallWrapper>) |           3 |          216
+    instance(<class idlelib.WindowList.ListedToplevel>) |           1 |           72
 
 Mh, still some new objects. Repeating this procedure several times will reveal
 that here indeed we have a leak.
@@ -230,26 +225,24 @@ method a bit, so that the associated commands are deleted as well::
             self.deletecommand(c)
 
 Now we restart IDLE, calibrate our tracker and do another round of `print_diff`.
-After the first time the Path Browser is opened we get this
+After the first time the Path Browser is opened we get this::
 
->>>
-     types |   # objects |   total size
-========== | =========== | ============
-     tuple |         146 |        13168
-      dict |          13 |        12088
-      list |           2 |        11256
-       str |          92 |         7588
-      code |          46 |         5520
-  function |          45 |         5400
-  classobj |           9 |          864
-    module |           3 |          168
+       types |   # objects |   total size
+  ========== | =========== | ============
+       tuple |         146 |        13168
+        dict |          13 |        12088
+        list |           2 |        11256
+         str |          92 |         7588
+        code |          46 |         5520
+    function |          45 |         5400
+    classobj |           9 |          864
+      module |           3 |          168
 
 Okay, still some objects created, but no more instances and instance
-methods. Let's do it again.
+methods. Let's do it again.::
 
->>>
-  types |   # objects |   total size
-======= | =========== | ============
+    types |   # objects |   total size
+  ======= | =========== | ============
 
 Yes, this looks definitely better. The memory leak is gone. 
 	    
