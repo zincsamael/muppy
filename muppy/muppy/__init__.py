@@ -1,8 +1,7 @@
-"""Tool for measuring the memory usage of Python applications.
+"""Tool set for measuring the memory usage of Python applications.
 
-To Do
------
-- always invoke gc.collect() before objects are fetched
+Be aware that muppy will call gc.collect() whenever the object state is
+gathered to remove reference cycles.
 
 """
 

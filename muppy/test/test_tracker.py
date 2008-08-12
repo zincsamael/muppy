@@ -35,29 +35,23 @@ class TrackerTest(unittest.TestCase):
         """
         stracker = tracker.SummaryTracker()
         # for now, no object should be listed
-        gc.collect()
         diff = stracker.diff()
         self.assert_(self._contains_indicator(diff) == None)
         # now an indicator object should be included in the diff
         o = self._get_indicator()
-        gc.collect()
         diff = stracker.diff()
         self.assert_(self._contains_indicator(diff) == 1)
         # now it should be gone again, compared to the
         # previously stored summary
         o = self._get_indicator()
-        gc.collect()
         sn1 = stracker.create_summary()
         o = None
-        gc.collect()
         diff = stracker.diff(summary1=sn1)
         self.assert_(self._contains_indicator(diff) == -1)
         # comparing two homemade summaries should work, too
-        gc.collect()
         o = None
         sn1 = stracker.create_summary()
         o = self._get_indicator()
-        gc.collect()
         sn2 = stracker.create_summary()
         diff = stracker.diff(summary1=sn1, summary2=sn2)
         self.assert_(self._contains_indicator(diff) == 1)
@@ -86,19 +80,15 @@ class TrackerTest(unittest.TestCase):
         """
         # at the beginning, there should not be an indicator object listed
         tmp_tracker = tracker.SummaryTracker()
-        gc.collect()
         sn = tmp_tracker.create_summary()
         self.assert_(self._contains_indicator(sn) == None)
         # now an indicator object should be listed
         o = self._get_indicator()
-        gc.collect()
         sn = tmp_tracker.create_summary()
         self.assert_(self._contains_indicator(sn) == 1)
         # with ignore_self enabled a second summary should not list the first
         # summary
-        gc.collect()
         sn = tmp_tracker.create_summary()
-        gc.collect()
         sn2 = tmp_tracker.create_summary()
         tmp = summary._sweep(summary.get_diff(sn, sn2))
         self.assert_(len(tmp) == 0)

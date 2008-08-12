@@ -12,13 +12,14 @@ except ImportError:
 __TPFLAGS_HAVE_GC = 1<<14
 
 def get_objects(remove_dups=True):
-    """Return a list of all known (gc-vice) objects.
+    """Return a list of all known objects.
 
     Keyword arguments:
     remove_dups -- if True, all duplicate objects will be removed.
     
     """
     res = []
+    gc.collect()
     tmp = gc.get_objects()
     for o in tmp:
         # gc.get_objects returns only container objects, but we also want
@@ -166,10 +167,8 @@ def _get_usage(function, *args):
         from after the function has been invoked.
 
         """
-        gc.collect()
         s_before = summary.summarize(get_objects())
         function(*args)
-        gc.collect()
         s_after = summary.summarize(get_objects())
         return (s_before, s_after)
 
@@ -188,13 +187,11 @@ def _get_usage(function, *args):
         if s_before != s_after:
             ignore.append(s_before)
         for row in s_before:
-            gc.collect()
             # ignore refs from summary and frame (loop)
             if len(gc.get_referrers(row)) == 2:
                 ignore.append(row)
             for item in row:
                 # ignore refs from summary and frame (loop)
-                gc.collect()
                 if len(gc.get_referrers(item)) == 2:
                     ignore.append(item)
         for o in ignore:
