@@ -9,7 +9,7 @@ from distutils.core import setup
 import os
 import shutil
 
-import metadata
+from muppy import metadata
 
 doc_dir = 'doc'
 compiled_doc_dir = os.path.join(doc_dir, 'build', 'html')
@@ -59,8 +59,7 @@ def run_setup():
           url=metadata.url,
           version=metadata.version,
 
-          packages=['muppy', 'utils'],
-          package_dir = {'muppy':'.'},
+          packages=['muppy', 'muppy.utils'],
           
           license=metadata.license,
           platforms = ['any'],
