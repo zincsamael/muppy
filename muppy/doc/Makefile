@@ -1,3 +1,4 @@
+
 # Makefile for Sphinx documentation
 #
 
@@ -69,3 +70,10 @@ linkcheck:
 	@echo
 	@echo "Link check complete; look for any errors in the above output " \
 	      "or in build/linkcheck/output.txt."
+
+doctest:
+	mkdir -p build/doctest
+	$(SPHINXBUILD) -b doctest $(ALLSPHINXOPTS) build/doctest
+	@echo
+	@echo "Doctests completed. The logfile is stored in build/doctest/output.txt"
+

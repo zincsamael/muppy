@@ -4,7 +4,7 @@
 tracker
 =======
 
-.. automodule:: tracker
+.. automodule:: muppy.tracker
 
 Classes
 -------
