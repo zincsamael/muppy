@@ -537,6 +537,7 @@ div.body h2 {
     border-bottom: 0.2em solid #0d6200;
 }
 div.body h3 {
+    text-align: right;
     font-size: 140%;
     border-bottom: 0.1em dashed #0d6200;
 }
