@@ -1241,19 +1241,16 @@ class PyShell(OutputWindow):
                 raise KeyboardInterrupt
 
     def memory_snapshot(self, s):
-        gc.collect()
         print
         objects = muppy.get_objects()
         summary.print_(summary.summarize(objects))
         
     def memory_diff(self, s):
-        gc.collect()
         self.memory_tracker.print_diff()
 
     def ref_browser(self, s):
         from WindowList import ListedToplevel
         from TreeWidget import TreeNode, ScrolledCanvas
-        gc.collect()
         objects = gc.get_objects()
         toplevels = muppy.filter(objects, Type=ListedToplevel)
         for tl in toplevels:

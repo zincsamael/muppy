@@ -76,11 +76,7 @@ class RefBrowser(object):
         self.ignore.append(self.already_included)
 
     def get_tree(self):
-        """Get a tree of referrers of the root object.
-
-        gc.collect() is called by this method.
-        
-        """
+        """Get a tree of referrers of the root object."""
         self.ignore.append(inspect.currentframe())
         return self._get_tree(self.root, self.maxdepth)
     
@@ -93,15 +89,12 @@ class RefBrowser(object):
         maxdepth defines how much further down the from the root the tree
         should be build.
 
-        gc.collect() is called by this method.
-        
         """
         self.ignore.append(inspect.currentframe())
         res = _Node(root, self.str_func)
         self.already_included.add(id(root))
         if maxdepth == 0:
             return res
-        gc.collect()
         objects = gc.get_referrers(root)
         self.ignore.append(objects)
         for o in objects:

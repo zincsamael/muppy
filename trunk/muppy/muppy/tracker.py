@@ -27,11 +27,8 @@ class SummaryTracker(object):
     a new summary will be created. Thus, a diff between the new and the last
     summary can be extracted.
 
-    If you make use of the ignore_self parameter, please note that each time a
-    summary is created `gc.collect` is called in order deal with summaries which
-    are to be ignored. Also be aware that filtering out previous summaries is
-    time-intensive. You should therefore restrict yourself to the number of
-    summaries you really need.
+    Be aware that filtering out previous summaries is time-intensive. You should
+    therefore restrict yourself to the number of summaries you really need.
 
     """
     def __init__(self, ignore_self=True):
@@ -90,8 +87,6 @@ class SummaryTracker(object):
 
             # do the summary
             res = summary.summarize(muppy.get_objects())
-            # but also cleanup, otherwise the ref counting will be useless
-            gc.collect()
 
             # remove ids stored in the ref_counter
             for _id in ref_counter.keys():
@@ -186,7 +181,6 @@ class ObjectTracker(object):
             # remove all objects listed in the ignore list
             return [o for o in objects if o not in ignore]
     
-        gc.collect()
         tmp = gc.get_objects()
         ignore.append(inspect.currentframe())
         ignore.append(self)

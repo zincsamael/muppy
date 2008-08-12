@@ -63,18 +63,16 @@ Garbage Collection
 If you analyze the state of objects, be aware of the Python garbage collector
 (GC) and how it works. First of all, only container objects are handled by the
 GC. A container object is an object which holds references to other objects. A
-tuple is a container object, an integer is not. When container objects are
-deleted or not referenced anymore, they may be collected by the garbage
-collector. But normally a GC run is not predictable. Thus, it is likely that
-when analyzing objects, you also get a bunch of 'old' objects (that is objects
-which shouldn't be there anymore) in your result set. It is therefore
-recommended, that you invoke `gc.collect()` before gathering information about
-the current object state.
-
-.. code-block:: python
-
-   import gc
-   	gc.collect()
+tuple is a container object, an integer is not. Although you may delete all your
+references to a container object, it does not mean that all existing references
+are deleted. For example, an object A is referencing another object B which also
+holds a reference to A. This means the object will not be deleted. At least not
+until the garbage collector is invoked, because the GC is able to detect and
+resolve cyclic references. But normally a GC run is not predictable. Thus, it is
+likely that when analyzing objects, you also get a bunch of 'old' objects (that
+is objects which shouldn't be there anymore) in your result set. Therefore muppy
+will invoke `gc.collect()` before gathering information about the current object
+state.
 
 
 .. _c_api: http://docs.python.org/api/api.html
