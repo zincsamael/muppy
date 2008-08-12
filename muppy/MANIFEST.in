@@ -2,6 +2,6 @@ include LICENSE
 include NOTICE
 include README
 
-recursive-include doc *.css *.html
-prune doc/source/*
-prune doc/build/*
+recursive-include doc *
+prune doc/source
+prune doc/build
