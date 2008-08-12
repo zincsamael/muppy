@@ -79,5 +79,3 @@ if os.path.isdir(compiled_doc_dir):
     del_copied_docs(files)
 else:
     run_setup()
-    
-
