@@ -73,7 +73,11 @@ def run_setup():
                        ],
           )
 
-files = copy_doc()
-run_setup()
-del_copied_docs(files)
+if os.path.isdir(compiled_doc_dir):
+    files = copy_doc()
+    run_setup()
+    del_copied_docs(files)
+else:
+    run_setup()
+    
 
