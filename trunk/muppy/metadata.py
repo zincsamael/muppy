@@ -20,7 +20,7 @@ long_description = (''
 '\n'
 '**Read the documentation**: http://packages.python.org/muppy\n'
 '\n'
-'**File a bug report**: http://code.google.com/p/muppy/issue\n'
+'**File a bug report**: http://code.google.com/p/muppy/issues\n'
 '\n'
 '**Check out repository**: http://code.google.com/p/muppy/source/checkout\n'
 )
