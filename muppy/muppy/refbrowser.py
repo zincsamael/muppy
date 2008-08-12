@@ -9,9 +9,6 @@ and may specify further settings such as the initial depth of the tree or an
 output function.
 Afterwards you can print the tree which will be arranged based on your previous
 settings.
-
-TODO:
-- fix ignore list integration
 """
 import gc
 import inspect
