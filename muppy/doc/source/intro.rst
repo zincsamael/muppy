@@ -107,7 +107,7 @@ Of course we don't have to do all these steps manually, instead we can use
 muppy's tracker.
 
 >>> from muppy import tracker
->>> tr = tracker.tracker()
+>>> tr = tracker.SummaryTracker()
 >>> tr.print_diff()
                              types |   # objects |   total size
 ================================== | =========== | ============
