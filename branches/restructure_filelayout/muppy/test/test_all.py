@@ -8,7 +8,7 @@ from unittest import defaultTestLoader
 
 def suite():
     mod_path = os.path.dirname(inspect.getfile(lambda foo:foo))
-    sys.path.append(mod_path + os.sep + ".." + os.sep + "..")
+    sys.path.append(mod_path + os.sep + "..")
     s = unittest.TestSuite()
     for moduleName in glob(mod_path + os.sep + "test_*.py"):
         moduleName = os.path.basename(moduleName)
