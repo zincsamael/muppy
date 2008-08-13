@@ -7,10 +7,10 @@ import muppy.muppy
 
 # default to asizeof if sys.getsizeof is not available (prior to Python 2.6)
 try:
-    from sys import getsizeof
+    from sys import getsizeof as _getsizeof
 except ImportError:
-    from muppy.utils import asizeof
-    getsizeof = asizeof.flatsize
+    from utils import asizeof
+    _getsizeof = asizeof.flatsize
     
 class MuppyTest(unittest.TestCase):
 
@@ -76,7 +76,7 @@ class MuppyTest(unittest.TestCase):
             objects.append(' ' * rand)
         objects = muppy.filter(objects, min=minimum, max=maximum)
         for o in objects:
-            self.assert_(minimum <= getsizeof(o) <= maximum)
+            self.assert_(minimum <= _getsizeof(o) <= maximum)
 
         self.assertRaises(ValueError, muppy.filter, objects, min=17, max=16)
 
@@ -117,7 +117,7 @@ class MuppyTest(unittest.TestCase):
         list = [o1, o2, o3, o4, o5]
         expected = 0
         for o in list:
-            expected += getsizeof(o)
+            expected += _getsizeof(o)
 
         self.assertEqual(muppy.get_size(list), expected)
 
@@ -193,7 +193,7 @@ class MuppyTest(unittest.TestCase):
         objects = muppy.sort(objects)
         while len(objects) > 1:
             prev_o = objects.pop(0)
-            self.assert_(getsizeof(objects[0]) >= getsizeof(prev_o),\
+            self.assert_(_getsizeof(objects[0]) >= _getsizeof(prev_o),\
                  "The previous element appears to be larger than the " +\
                  "current: %s<%s" % (prev_o, objects[0]))
 

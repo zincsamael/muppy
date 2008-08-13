@@ -49,10 +49,10 @@ import types
 
 # default to asizeof if sys.getsizeof is not available (prior to Python 2.6)
 try:
-    from sys import getsizeof
+    from sys import getsizeof as _getsizeof
 except ImportError:
     from utils import asizeof
-    getsizeof = asizeof.flatsize
+    _getsizeof = asizeof.flatsize
 
 representations = {}
 def init_representations():
@@ -125,10 +125,10 @@ def summarize(objects):
         otype = _repr(o)
         if otype in count:
             count[otype] += 1
-            total_size[otype] += getsizeof(o)
+            total_size[otype] += _getsizeof(o)
         else:
             count[otype] = 1
-            total_size[otype] = getsizeof(o)
+            total_size[otype] = _getsizeof(o)
     rows = []
     for otype in count:
         rows.append([otype, count[otype], total_size[otype]])
@@ -276,7 +276,7 @@ def _traverse(summary, function, *args):
 def _subtract(summary, o):
     """Remove object o from the summary by subtracting it's size."""
     found = False
-    row = [_repr(o), 1, getsizeof(o)]
+    row = [_repr(o), 1, _getsizeof(o)]
     for r in summary:
         if r[0] == row[0]:
             (r[1], r[2]) = (r[1] - row[1], r[2] - row[2])
