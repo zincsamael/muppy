@@ -55,7 +55,7 @@ except ImportError:
     _getsizeof = asizeof.flatsize
 
 representations = {}
-def init_representations():
+def _init_representations():
     global representations
     frame = [
         lambda f: "frame (codename: %s)" %\
@@ -108,7 +108,7 @@ def init_representations():
         set: _set,
     }
 
-init_representations()
+_init_representations()
 
 def summarize(objects):
     """Summarize an objects list.
