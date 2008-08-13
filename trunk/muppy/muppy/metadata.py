@@ -10,19 +10,24 @@ license      = 'Apache License, Version 2.0'
 
 description      = '(Yet another) memory usage profiler for Python.'
 # reST formatted
-long_description = (''
-'Muppy tries to help developers to identity memory leaks of Python'
-'applications. It enables the tracking of memory usage during runtime and the '
-'identification of objects which are leaking. Also, tools are provided which '
-'allow to locate the source of not released objects.\n'
-'\n'
-'For the ones how are looking for quick links, here are some.\n'
-'\n'
-'**Read the documentation**: http://packages.python.org/muppy\n'
-'\n'
-'**File a bug report**: http://code.google.com/p/muppy/issues\n'
-'\n'
-'**Check out repository**: http://code.google.com/p/muppy/source/checkout\n'
+long_description = (
+"""Muppy tries to help developers to identity memory leaks of Python 
+applications. It enables the tracking of memory usage during runtime and the 
+identification of objects which are leaking. Also, tools are provided which 
+allow to locate the source of not released objects.
+
+For the ones how are looking for quick links, here are some.
+
+**Read the documentation**: http://packages.python.org/muppy
+
+**File a bug report**: http://code.google.com/p/muppy/issues
+
+**Check out repository**: http://code.google.com/p/muppy/source/checkout
+
+Because muppy is young of age, it still has to learn a lot. If you have
+anything you would like to let us know, please do so at
+muppy-dev@googlegroups.com.
+"""
 )
 
 author       = 'Robert Schuppenies'
