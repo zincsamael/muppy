@@ -106,8 +106,8 @@
    These definitions and other assumptions are rather arbitrary
    and may need corrections or adjustments.
 
-   Tested with Python 2.2.3, 2.3.4, 2.4.4, 2.5.1, 2.5.2, 2.6b1 or
-   3.0b1 on CentOS 4.6, SuSE 9.3, MacOS X 10.4.11 Tiger (Intel)
+   Tested with Python 2.2.3, 2.3.4, 2.4.4, 2.5.1, 2.5.2, 2.6b2 or
+   3.0b2 on CentOS 4.6, SuSE 9.3, MacOS X 10.4.11 Tiger (Intel)
    and Panther 10.3.9 (PPC), Solaris 10 and Windows XP all 32-bit
    Python and on RHEL 3u7 and Solaris 10 both 64-bit Python.
 
@@ -131,7 +131,7 @@ from sys        import modules, getrecursionlimit, stdout
 import types    as     Types
 import weakref  as     Weakref
 
-__version__ = '4.2 (July 30, 2008)'
+__version__ = '4.4 (Aug 01, 2008)'
 __all__     = ['adict', 'asized', 'asizeof', 'asizesof',
                'Asized', 'Asizer',  # classes
                'basicsize', 'flatsize', 'itemsize', 'leng', 'refs']
@@ -242,12 +242,23 @@ def _derive_typedef(typ):
         return v[0]
     return None
 
-def _dir(obj, pref='', excl=()):
-    '''Return matching attribute names of an object with exclusions.
+def _dir2(obj, pref='', excl=(), slots=None):
+    '''Return an attribute name, object 2-tuple for certain
+       attributes or for the '__slots__' attributes of the
+       given object, but not both.
     '''
-    for a in dir(obj):  # cf. inspect.getmembers()
-        if a.startswith(pref) and a not in excl:
-            yield a
+    if slots:  # slot attrs
+        s = getattr(obj, slots, None)
+        if s is not None:
+             # __slots__ tuple/list
+            yield slots, _Slots(s)
+            for a in s:
+                if hasattr(obj, a):
+                    yield a, getattr(obj, a)
+    else:  # regular attrs
+        for a in dir(obj):
+            if a.startswith(pref) and a not in excl and hasattr(obj, a):
+               yield a, getattr(obj, a)
 
 def _infer_dict(obj):
     '''Return True for likely dict object.
@@ -325,16 +336,16 @@ def _refs(obj, named, *ats, **kwds):
         for a in ats:  # cf. inspect.getmembers()
             if hasattr(obj, a):
                 yield _NamedRef(a, getattr(obj, a))
-        if kwds:  # kwds are _dir() args
-            for a in _dir(obj, **kwds):
-                yield _NamedRef(a, getattr(obj, a))
+        if kwds:  # kwds are _dir2() args
+            for a, o in _dir2(obj, **kwds):
+                yield _NamedRef(a, o)
     else:
         for a in ats:  # cf. inspect.getmembers()
             if hasattr(obj, a):
                 yield getattr(obj, a)
-        if kwds:  # kwds are _dir() args
-            for a in _dir(obj, **kwds):
-                yield getattr(obj, a)
+        if kwds:  # kwds are _dir2() args
+            for _, o in _dir2(obj, **kwds):
+                yield o
 
 def _repr(obj, clip=80):
     '''Clip long repr() string.
@@ -432,10 +443,7 @@ def _im_refs(obj, named):
 def _inst_refs(obj, named):
     '''Return specific referents of a class instance.
     '''
-     # handle __slots__ items like attributes
-    s = getattr(obj, '__slots__', ())
-    return _refs(obj, named, '__dict__', '__class__',
-                             '__slots__', *s)
+    return _refs(obj, named, '__dict__', '__class__', slots='__slots__')
 
 def _module_refs(obj, named):
     '''Return specific referents of a module object.
@@ -592,6 +600,14 @@ class _Claskey(object):
         else:
             return '%s%s def' % (r, self._sty)
     __repr__ = __str__
+
+class _Slots(tuple):
+    '''Wrapper class for __slots__ attribute at
+       class instances to account only for the
+       size of the __slots__ tuple/list with
+       references to the attribute values.
+    '''
+    pass
 
  # For most objects, the object type is used as the key in the
  # _typedefs dict further below, except class and type objects
@@ -829,6 +845,7 @@ _typedef_both(complex)
 _typedef_both(float)
 _typedef_both(list,     leng=_len_mutable, refs=_seq_refs, item=_sizeof_Cvoidp)  # sizeof(PyObject*)
 _typedef_both(tuple,    leng=_len,         refs=_seq_refs, item=_sizeof_Cvoidp)  # sizeof(PyObject*)
+_typedef_both(_Slots,   leng=_len,                         item=_sizeof_Cvoidp)  # sizeof(PyObject*)
 _typedef_both(property, refs=_prop_refs)
 _typedef_both(type(Ellipsis))
 _typedef_both(type(None))
@@ -1888,6 +1905,21 @@ if __name__ == '__main__':
 
         asized(globals(), align=0, detail=MAX, limit=MAX, code=False, stats=1)
 
+        class Old:
+            pass  # m = None
+        class New(object):
+            __slots__ = ('m',)
+         # basic instance sizes
+        o, n = Old(), New()
+        asizesof(o, n, limit=MAX, code=False, stats=1)
+         # with min attr size
+        o.m = 'o'
+        n.m = 'n'
+        asizesof(o, n, 'm', limit=MAX, code=False, stats=1)
+         # with larger attr size
+        o.m = 'o'*1000
+        n.m = 'n'*1000
+        asizesof(o, n, 'm'*1000, limit=MAX, code=False, stats=1)
 
 # License file from an earlier version of this source file follows:
 
