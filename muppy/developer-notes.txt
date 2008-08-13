@@ -1,3 +1,13 @@
+Check-in new revision
+=====================
+
+* update CHANGELOG if necessary
+
+* run test suite
+
+* run doctests
+
+
 Release a new version
 =====================
 
@@ -6,12 +16,12 @@ Tests
 
 * run the test suite
 
-  python tests/test_all.py
+  $ python tests/test_all.py
 
 * run doctests on the documentation
 
-  cd doc
-  make doctest
+  $ cd doc
+  $ make doctest
 
 Checks
 ------
@@ -24,13 +34,13 @@ Checks
 
 * check the to-be-released module-distribution
 
-  python setup.py sdist
+  $ python setup.py sdist
 
 Release
 -------
   
 * release a new version to the python cheeseshop via
 
-  python setup.py sdist --formats=gztar,zip upload
+  $ python setup.py sdist --formats=gztar,zip upload
 
 * update the documentation at http://packages.python.org/muppy/
